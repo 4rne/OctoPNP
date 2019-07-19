@@ -72,7 +72,7 @@ class SmdParts():
         x = float(self._et.find("./part[@id='" + str(partnr) + "']/destination").get("x"))
         y = float(self._et.find("./part[@id='" + str(partnr) + "']/destination").get("y"))
         z = float(self._et.find("./part[@id='" + str(partnr) + "']/destination").get("z"))
-        orientation = float(self._et.find("./part[@id='" + str(partnr) + "']/destination").get("orientation"))
+        orientation = 0 #float(self._et.find("./part[@id='" + str(partnr) + "']/destination").get("orientation"))
         return [x, y, z, orientation]
 
     def _sanitize(self):
@@ -122,7 +122,7 @@ class SmdParts():
                             result, msg = self._sanitizeAttribute(part, elem, ["x1", "y1", "x2", "y2"], float)
                 # destination
                 if result:
-                    result, msg = self._sanitizeTag(part, "destination", ["x", "y", "z", "orientation"], float)
+                    result, msg = self._sanitizeTag(part, "destination", ["x", "y", "z"], float)
 
         return result, msg
 

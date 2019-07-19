@@ -4,21 +4,21 @@ import setuptools
 ########################################################################################################################
 
 # The plugin's identifier, has to be unique
-plugin_identifier = "OctoPNP"
+plugin_identifier = "OctoMagnetPNP"
 
 # The plugin's python package, should be "octoprint_<plugin identifier>", has to be unique
 plugin_package = "octoprint_%s" % plugin_identifier
 
 # The plugin's human readable name. Can be overwritten within OctoPrint's internal data via __plugin_name__ in the
 # plugin module
-plugin_name = "OctoPNP"
+plugin_name = "OctoMagnetPNP"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "0.2"
+plugin_version = "0.11"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
-plugin_description = "OctoPrint plugin for camera based pick 'n place control"
+plugin_description = "OctoPrint plugin for magnet based pick and place control"
 
 # The plugin's author. Can be overwritten within OctoPrint's internal data via __plugin_author__ in the plugin module
 plugin_author = "Florens Wasserfall"

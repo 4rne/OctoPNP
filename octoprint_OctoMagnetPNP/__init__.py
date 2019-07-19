@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-    This file is part of OctoPNP
+    This file is part of OctoMagnetPNP
 
-    OctoPNP is free software: you can redistribute it and/or modify
+    OctoMagnetPNP is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OctoPNP is distributed in the hope that it will be useful,
+    OctoMagnetPNP is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OctoPNP.  If not, see <http://www.gnu.org/licenses/>.
+    along with OctoMagnetPNP.  If not, see <http://www.gnu.org/licenses/>.
 
     Main author: Florens Wasserfall <wasserfall@kalanka.de>
 """
@@ -22,7 +22,6 @@ from __future__ import absolute_import
 
 
 import octoprint.plugin
-import flask
 import re
 from subprocess import call
 import os
@@ -32,30 +31,23 @@ import base64
 import shutil
 
 from .SmdParts import SmdParts
-from .ImageProcessing import ImageProcessing
 
-
-__plugin_name__ = "OctoPNP"
+__plugin_name__ = "OctoMagnetPNP"
 
 #instantiate plugin object and register hook for gcode injection
 def __plugin_load__():
 
-    octopnp = OctoPNP()
+    octomagnetpnp = OctoMagnetPNP()
 
     global __plugin_implementation__
-    __plugin_implementation__ = octopnp
+    __plugin_implementation__ = octomagnetpnp
 
     global __plugin_hooks__
-    __plugin_hooks__ = {'octoprint.comm.protocol.gcode.sending': octopnp.hook_gcode_sending, 'octoprint.comm.protocol.gcode.queuing': octopnp.hook_gcode_queuing}
-
-    global __plugin_helpers__
-    __plugin_helpers__ = dict(
-        get_head_camera_pxPerMM = octopnp._helper_get_head_camera_pxPerMM,
-        get_head_camera_image   = octopnp._helper_get_head_camera_image_xy # parameter: [x, y, callback, adjust_focus=True]
-    )
+    __plugin_hooks__ = {'octoprint.comm.protocol.gcode.sending': octomagnetpnp.hook_gcode_sending, 'octoprint.comm.protocol.gcode.queuing': octomagnetpnp.hook_gcode_queuing}
 
 
-class OctoPNP(octoprint.plugin.StartupPlugin,
+
+class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
             octoprint.plugin.TemplatePlugin,
             octoprint.plugin.EventHandlerPlugin,
             octoprint.plugin.SettingsPlugin,
@@ -83,7 +75,6 @@ class OctoPNP(octoprint.plugin.StartupPlugin,
 
 
     def on_after_startup(self):
-        self.imgproc = ImageProcessing(float(self._settings.get(["tray", "boxsize"])), int(self._settings.get(["camera", "bed", "binary_thresh"])), int(self._settings.get(["camera", "head", "binary_thresh"])))
         #used for communication to UI
         self._pluginManager = octoprint.plugin.plugin_manager()
 
@@ -142,35 +133,17 @@ class OctoPNP(octoprint.plugin.StartupPlugin,
 
     def get_template_configs(self):
         return [
-            dict(type="tab", template="OctoPNP_tab.jinja2", custom_bindings=True),
-            dict(type="settings", template="OctoPNP_settings.jinja2", custom_bindings=True)
+            dict(type="tab", template="OctoMagnetPNP_tab.jinja2", custom_bindings=True),
+            dict(type="settings", template="OctoMagnetPNP_settings.jinja2", custom_bindings=True)
             #dict(type="settings", custom_bindings=True)
         ]
 
     def get_assets(self):
         return dict(
-            js=["js/OctoPNP.js",
+            js=["js/OctoMagnetPNP.js",
                 "js/smdTray.js",
                 "js/settings.js"]
         )
-
-    # Flask endpoint for the GUI to request camera images. Possible request parameters are "BED" and "HEAD".
-    @octoprint.plugin.BlueprintPlugin.route("/camera_image", methods=["GET"])
-    def getCameraImage(self):
-        result = ""
-        if "imagetype" in flask.request.values:
-            camera = flask.request.values["imagetype"]
-            if ((camera == "HEAD") or (camera == "BED")):
-                if self._grabImages(camera):
-                    imagePath = self._settings.get(["camera", camera.lower(), "path"])
-                    try:
-                        f = open(imagePath,"r")
-                        result = flask.jsonify(src="data:image/" + os.path.splitext(imagePath)[1] + ";base64,"+base64.b64encode(bytes(f.read())))
-                    except IOError:
-                        result = flask.jsonify(error="Unable to open Image after fetching. Image path: " + imagePath)
-                else:
-                    result = flask.jsonify(error="Unable to fetch image. Check octoprint log for details.")
-        return flask.make_response(result, 200)
 
     # Use the on_event hook to extract XML data every time a new file has been loaded by the user
     def on_event(self, event, payload):
@@ -231,7 +204,7 @@ class OctoPNP(octoprint.plugin.StartupPlugin,
                 for i in range(10):
                     self._printer.commands("G4 P1")
 
-                self._printer.commands("M362 OctoPNP")
+                self._printer.commands("M362 OctoMagnetPNP")
 
 
                 return (None,) # suppress command
@@ -251,7 +224,7 @@ class OctoPNP(octoprint.plugin.StartupPlugin,
     """
 
     def hook_gcode_sending(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
-        if "M362 OctoPNP" in cmd:
+        if "M362 OctoMagnetPNP" in cmd:
             if self._state == self.STATE_PICK:
                 self._state = self.STATE_ALIGN
                 self._logger.info("Pick part " + str(self._currentPart))
@@ -267,7 +240,7 @@ class OctoPNP(octoprint.plugin.StartupPlugin,
                 for i in range(10):
                     self._printer.commands("G4 P1")
 
-                self._printer.commands("M362 OctoPNP")
+                self._printer.commands("M362 OctoMagnetPNP")
 
                 return (None,) # suppress command
 
@@ -283,7 +256,7 @@ class OctoPNP(octoprint.plugin.StartupPlugin,
                 for i in range(10):
                     self._printer.commands("G4 P1")
 
-                self._printer.commands("M362 OctoPNP")
+                self._printer.commands("M362 OctoMagnetPNP")
 
                 return (None,) # suppress command
 
@@ -308,7 +281,7 @@ class OctoPNP(octoprint.plugin.StartupPlugin,
                 return (None,) # suppress command
 
         # handle camera positioning for external request (helper function)
-        if "M362 OctoPNP_camera_external" in cmd:
+        if "M362 OctoMagnetPNP_camera_external" in cmd:
             result = self._grabImages("HEAD")
 
             # the current printjob is resumed and octoPNP is set into default state
@@ -629,7 +602,7 @@ class OctoPNP(octoprint.plugin.StartupPlugin,
             event=event,
             data=data
         )
-        self._pluginManager.send_plugin_message("OctoPNP", message)
+        self._pluginManager.send_plugin_message("OctoMagnetPNP", message)
 
 
 
@@ -690,9 +663,9 @@ class OctoPNP(octoprint.plugin.StartupPlugin,
             self._printer.commands("M400")
             for i in range(10):
                 self._printer.commands("G4 P1")
-            self._printer.commands("M362 OctoPNP_camera_external")
+            self._printer.commands("M362 OctoMagnetPNP_camera_external")
 
         else:
-            self._logger.info("Abort, OctoPNP is busy (not in state NONE, current state: " + str(self._state) + ")")
+            self._logger.info("Abort, OctoMagnetPNP is busy (not in state NONE, current state: " + str(self._state) + ")")
 
         return result

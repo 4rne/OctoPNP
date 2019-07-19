@@ -1,5 +1,5 @@
 $(function() {
-    function OctoPNPSettingsViewModel(parameters) {
+    function OctoMagnetPNPSettingsViewModel(parameters) {
         var self = this;
 
         self.settings = parameters[0];
@@ -73,9 +73,9 @@ $(function() {
             self.control.sendCustomCommand({command: "T0"});
 
             //move camera to object
-            var x = self.objectPositionX() - parseFloat(self.settings.plugins.OctoPNP.camera.head.x());
-            var y = self.objectPositionY() - parseFloat(self.settings.plugins.OctoPNP.camera.head.y());
-            self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + self.settings.plugins.OctoPNP.camera.head.z() + " F3000"});
+            var x = self.objectPositionX() - parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.x());
+            var y = self.objectPositionY() - parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.y());
+            self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + self.settings.plugins.OctoMagnetPNP.camera.head.z() + " F3000"});
 
             //reset offset correction values
             self.offsetCorrectionX(0.0);
@@ -90,8 +90,8 @@ $(function() {
 
         self.saveHeadCameraOffset = function() {
             //save values...
-            self.settings.plugins.OctoPNP.camera.head.x(parseFloat(self.settings.plugins.OctoPNP.camera.head.x())-self.offsetCorrectionX());
-            self.settings.plugins.OctoPNP.camera.head.y(parseFloat(self.settings.plugins.OctoPNP.camera.head.y())-self.offsetCorrectionY());
+            self.settings.plugins.OctoMagnetPNP.camera.head.x(parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.x())-self.offsetCorrectionX());
+            self.settings.plugins.OctoMagnetPNP.camera.head.y(parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.y())-self.offsetCorrectionY());
 
             //deactivate Keycontrol
             self.keycontrolPossible(false);
@@ -143,9 +143,9 @@ $(function() {
             self.control.sendCustomCommand({command: "T" + self.selectedBedExtruder().toString()});
 
             //move camera to object
-            var x = parseFloat(self.settings.plugins.OctoPNP.camera.bed.x());
-            var y = parseFloat(self.settings.plugins.OctoPNP.camera.bed.y());
-            self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + self.settings.plugins.OctoPNP.camera.bed.z() + " F3000"});
+            var x = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.x());
+            var y = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.y());
+            self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + self.settings.plugins.OctoMagnetPNP.camera.bed.z() + " F3000"});
 
             //reset offset correction values
             self.offsetCorrectionX(0.0);
@@ -182,8 +182,8 @@ $(function() {
         
         self.saveBedCameraPosition = function() {
             //save values
-            self.settings.plugins.OctoPNP.camera.bed.x(parseFloat(self.settings.plugins.OctoPNP.camera.bed.x())+self.offsetCorrectionX());
-            self.settings.plugins.OctoPNP.camera.bed.y(parseFloat(self.settings.plugins.OctoPNP.camera.bed.y())+self.offsetCorrectionY());
+            self.settings.plugins.OctoMagnetPNP.camera.bed.x(parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.x())+self.offsetCorrectionX());
+            self.settings.plugins.OctoMagnetPNP.camera.bed.y(parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.y())+self.offsetCorrectionY());
 
             //deactivate Keycontrol
             
@@ -206,12 +206,12 @@ $(function() {
             //reset axis
             self.control.sendCustomCommand({command: "G1 X100 Y150 F3000"});
             // Switch to VacNozzle extruder
-            self.control.sendCustomCommand({command: "T" + self.settings.plugins.OctoPNP.vacnozzle.extruder_nr().toString()});
+            self.control.sendCustomCommand({command: "T" + self.settings.plugins.OctoMagnetPNP.vacnozzle.extruder_nr().toString()});
             
             //move camera to object
-            var x = parseFloat(self.settings.plugins.OctoPNP.camera.bed.x()) - parseFloat(self.settings.plugins.OctoPNP.vacnozzle.x());
-            var y = parseFloat(self.settings.plugins.OctoPNP.camera.bed.y()) - parseFloat(self.settings.plugins.OctoPNP.vacnozzle.y());
-            self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + self.settings.plugins.OctoPNP.camera.bed.z() + " F3000"});
+            var x = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.x()) - parseFloat(self.settings.plugins.OctoMagnetPNP.vacnozzle.x());
+            var y = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.y()) - parseFloat(self.settings.plugins.OctoMagnetPNP.vacnozzle.y());
+            self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + self.settings.plugins.OctoMagnetPNP.camera.bed.z() + " F3000"});
             
             //reset offset correction values
             self.offsetCorrectionX(0.0);
@@ -227,8 +227,8 @@ $(function() {
         // delete if pnp offset in eeprom
         self.savePnpNozzleOffset = function() {
             //save values
-            self.settings.plugins.OctoPNP.vacnozzle.x(parseFloat(self.settings.plugins.OctoPNP.vacnozzle.x())-self.offsetCorrectionX());
-            self.settings.plugins.OctoPNP.vacnozzle.y(parseFloat(self.settings.plugins.OctoPNP.vacnozzle.y())-self.offsetCorrectionY());
+            self.settings.plugins.OctoMagnetPNP.vacnozzle.x(parseFloat(self.settings.plugins.OctoMagnetPNP.vacnozzle.x())-self.offsetCorrectionX());
+            self.settings.plugins.OctoMagnetPNP.vacnozzle.y(parseFloat(self.settings.plugins.OctoMagnetPNP.vacnozzle.y())-self.offsetCorrectionY());
 
             //deactivate Keycontrol
             self.keycontrolPossible(false);
@@ -253,20 +253,20 @@ $(function() {
             var cornerOffsetY = 0.0;
             switch (corner) {
                 case "TL": 
-                    var rows = parseFloat(self.settings.plugins.OctoPNP.tray.rows());
-                    cornerOffsetY = rows*parseFloat(self.settings.plugins.OctoPNP.tray.boxsize()) + (rows+1)*parseFloat(self.settings.plugins.OctoPNP.tray.rimsize());
+                    var rows = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rows());
+                    cornerOffsetY = rows*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (rows+1)*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rimsize());
                     self.statusTrayPosition(false);
                     break;
                 case "TR": 
-                    var rows = parseFloat(self.settings.plugins.OctoPNP.tray.rows());
-                    var cols = parseFloat(self.settings.plugins.OctoPNP.tray.columns());
-                    cornerOffsetY = rows*parseFloat(self.settings.plugins.OctoPNP.tray.boxsize()) + (rows+1)*parseFloat(self.settings.plugins.OctoPNP.tray.rimsize());
-                    cornerOffsetX = cols*parseFloat(self.settings.plugins.OctoPNP.tray.boxsize()) + (cols+1)*parseFloat(self.settings.plugins.OctoPNP.tray.rimsize());
+                    var rows = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rows());
+                    var cols = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.columns());
+                    cornerOffsetY = rows*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (rows+1)*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rimsize());
+                    cornerOffsetX = cols*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (cols+1)*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rimsize());
                     self.statusTrayPosition(false);
                     break;
                 case "BR": 
-                    var cols = parseFloat(self.settings.plugins.OctoPNP.tray.columns());
-                    cornerOffsetX = cols*parseFloat(self.settings.plugins.OctoPNP.tray.boxsize()) + (cols+1)*parseFloat(self.settings.plugins.OctoPNP.tray.rimsize());
+                    var cols = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.columns());
+                    cornerOffsetX = cols*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (cols+1)*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rimsize());
                     self.statusTrayPosition(false);
                     break;
                 default:
@@ -276,11 +276,11 @@ $(function() {
             }
 
             //move camera to tray
-            var x = parseFloat(self.settings.plugins.OctoPNP.tray.x()) + cornerOffsetX - parseFloat(self.settings.plugins.OctoPNP.camera.head.x());
-            var y = parseFloat(self.settings.plugins.OctoPNP.tray.y()) + cornerOffsetY - parseFloat(self.settings.plugins.OctoPNP.camera.head.y());
-            var z = parseFloat(self.settings.plugins.OctoPNP.tray.z()) + parseFloat(self.settings.plugins.OctoPNP.camera.head.z());
-            console.log(self.settings.plugins.OctoPNP.tray.z());
-            console.log(self.settings.plugins.OctoPNP.camera.head.z());
+            var x = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.x()) + cornerOffsetX - parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.x());
+            var y = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.y()) + cornerOffsetY - parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.y());
+            var z = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.z()) + parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.z());
+            console.log(self.settings.plugins.OctoMagnetPNP.tray.z());
+            console.log(self.settings.plugins.OctoMagnetPNP.camera.head.z());
             console.log(z);
             self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + z + " F3000"});
 
@@ -297,8 +297,8 @@ $(function() {
 
         self.saveTrayPosition = function() {
             //save values
-            self.settings.plugins.OctoPNP.tray.x(parseFloat(self.settings.plugins.OctoPNP.tray.x())+self.offsetCorrectionX());
-            self.settings.plugins.OctoPNP.tray.y(parseFloat(self.settings.plugins.OctoPNP.tray.y())+self.offsetCorrectionY());
+            self.settings.plugins.OctoMagnetPNP.tray.x(parseFloat(self.settings.plugins.OctoMagnetPNP.tray.x())+self.offsetCorrectionX());
+            self.settings.plugins.OctoMagnetPNP.tray.y(parseFloat(self.settings.plugins.OctoMagnetPNP.tray.y())+self.offsetCorrectionY());
 
             //deactivate Keycontrol
             self.keycontrolPossible(false);
@@ -308,7 +308,7 @@ $(function() {
 
         self._getImage = function(imagetype, callback) {
             $.ajax({
-                url: PLUGIN_BASEURL + "OctoPNP/camera_image?imagetype=" + imagetype,
+                url: PLUGIN_BASEURL + "OctoMagnetPNP/camera_image?imagetype=" + imagetype,
                 type: "GET",
                 dataType: "json",
                 contentType: "application/json; charset=UTF-8",
@@ -555,7 +555,7 @@ $(function() {
     // the global variable ADDITIONAL_VIEWMODELS
     ADDITIONAL_VIEWMODELS.push([
         // This is the constructor to call for instantiating the plugin
-        OctoPNPSettingsViewModel,
+        OctoMagnetPNPSettingsViewModel,
 
         // This is a list of dependencies to inject into the plugin, the order which you request here is the order
         // in which the dependencies will be injected into your view model upon instantiation via the parameters
@@ -563,6 +563,6 @@ $(function() {
         ["settingsViewModel", "controlViewModel", "connectionViewModel"],
 
         // Finally, this is the list of all elements we want this view model to be bound to.
-        "#settings_plugin_OctoPNP"
+        "#settings_plugin_OctoMagnetPNP"
     ]);
 });

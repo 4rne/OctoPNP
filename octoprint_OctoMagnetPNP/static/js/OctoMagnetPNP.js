@@ -1,5 +1,5 @@
 $(function() {
-    function OctoPNPViewModel(parameters) {
+    function OctoMagnetPNPViewModel(parameters) {
         var self = this;
 
         self.settings = parameters[0];
@@ -13,15 +13,12 @@ $(function() {
         self.currentOperation = ko.observable("");
         self.debugvar = ko.observable("");
         //white placeholder images
-        document.getElementById('headCameraImage').setAttribute( 'src', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wMRCQAfAmB4CgAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAAMSURBVAjXY/j//z8ABf4C/tzMWecAAAAASUVORK5CYII=');
-        document.getElementById('bedCameraImage').setAttribute( 'src', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wMRCQAfAmB4CgAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAAMSURBVAjXY/j//z8ABf4C/tzMWecAAAAASUVORK5CYII=');
-
 
         // This will get called before the ViewModel gets bound to the DOM, but after its depedencies have
         // already been initialized. It is especially guaranteed that this method gets called _after_ the settings
         // have been retrieved from the OctoPrint backend and thus the SettingsViewModel been properly populated.
         self.onBeforeBinding = function() {
-            self.traySettings = self.settings.settings.plugins.OctoPNP.tray;
+            self.traySettings = self.settings.settings.plugins.OctoMagnetPNP.tray;
             _smdTray = new smdTray(self.traySettings.columns(), self.traySettings.rows(), self.traySettings.boxsize(), _smdTrayCanvas);
             _smdTrayCanvas.addEventListener("click", self.onSmdTrayClick, false); //"click, dblclick"
             _smdTrayCanvas.addEventListener("dblclick", self.onSmdTrayDblclick, false); //"click, dblclick"
@@ -29,6 +26,7 @@ $(function() {
 
         // catch mouseclicks at the tray for interactive part handling
         self.onSmdTrayClick = function(event) {
+            console.log("click")
             var rect = _smdTrayCanvas.getBoundingClientRect();
             var x = Math.floor(event.clientX - rect.left);
             var y = Math.floor(event.clientY - rect.top);
@@ -50,9 +48,9 @@ $(function() {
 
 
 
-         self.onDataUpdaterPluginMessage = function(plugin, data) {
-            if(plugin == "OctoPNP") {
-                if(data.event == "FILE") {
+        self.onDataUpdaterPluginMessage = function (plugin, data) {
+            if(plugin == "OctoMagnetPNP") {
+                if (data.event == "FILE") {
                     if(data.data.hasOwnProperty("partCount")) {
                         self.stateString("Loaded file with " + data.data.partCount + " SMD parts");
                         //initialize the tray
@@ -87,7 +85,7 @@ $(function() {
                 else if(data.event == "BEDIMAGE") {
                     document.getElementById('bedCameraImage').setAttribute( 'src', data.data.src );
                 }
-                //self.debugvar("Plugin = OctoPNP");
+                //self.debugvar("Plugin = OctoMagnetPNP");
             }
         };
     }
@@ -96,7 +94,7 @@ $(function() {
     // the global variable ADDITIONAL_VIEWMODELS
     ADDITIONAL_VIEWMODELS.push([
         // This is the constructor to call for instantiating the plugin
-        OctoPNPViewModel,
+        OctoMagnetPNPViewModel,
 
         // This is a list of dependencies to inject into the plugin, the order which you request here is the order
         // in which the dependencies will be injected into your view model upon instantiation via the parameters
@@ -104,6 +102,6 @@ $(function() {
         ["settingsViewModel", "controlViewModel", "connectionViewModel"],
 
         // Finally, this is the list of all elements we want this view model to be bound to.
-        "#tab_plugin_OctoPNP"
+        "#tab_plugin_OctoMagnetPNP"
     ]);
 });

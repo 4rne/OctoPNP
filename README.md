@@ -9,7 +9,7 @@ It currently requires the following hardware extensions:
 * A (second) bed camera to precisely align the parts during the placing operation
 * A vacuum nozzle to grip parts
 
-![octopnp_screenshot](https://user-images.githubusercontent.com/4190756/35239671-7f378542-ffb1-11e7-9a77-4b9868aa3845.png)
+![octomagnetpnp_screenshot](https://user-images.githubusercontent.com/4190756/35239671-7f378542-ffb1-11e7-9a77-4b9868aa3845.png)
 
 # Installation
 ## Prerequirements
@@ -80,7 +80,7 @@ Good configuration and calibration of the printer is absolutely crucial to succe
 ## Tray
 The tray-position is set in relation to the primary extruder (usually the plastic extruder). To find the position, move the primary extruder to the bottom left corner of the tray and note the position. A negative Z-offset can be used if the tray is lower than the printbed.
 
-![octopnp_settings_tray_small](https://cloud.githubusercontent.com/assets/4190756/12114966/9a0747d2-b3ae-11e5-93e0-79d14a2ee632.png)
+![octomagnetpnp_settings_tray_small](https://cloud.githubusercontent.com/assets/4190756/12114966/9a0747d2-b3ae-11e5-93e0-79d14a2ee632.png)
 
 ## Extruders / Nozzles
 The minimal setup requires 3 nozzles:
@@ -110,4 +110,4 @@ The calibration "wizard" is an experimental set of tools to quickly achieve seve
 * The bed camera can be calibrated against any calibrated extruder that is able to move over the camera. While some extruders contain sticky, liquid content, it might be a good idea to cover the camera with some glass.
 * With a calibrated bed camera any extruder that is able to move over the camera, including the vacuum nozzle, can be calibrated.
 
-![octopnp_settings_calibration_small](https://cloud.githubusercontent.com/assets/4190756/12115026/fe216f54-b3ae-11e5-9a04-4f83776c2cf6.png)
+![octomagnetpnp_settings_calibration_small](https://cloud.githubusercontent.com/assets/4190756/12115026/fe216f54-b3ae-11e5-9a04-4f83776c2cf6.png)
