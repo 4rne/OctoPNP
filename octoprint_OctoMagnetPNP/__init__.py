@@ -101,33 +101,6 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                 "release_vacuum_gcode": "M340 P0 S1500",
                 "lower_nozzle_gcode": "",
                 "lift_nozzle_gcode": ""
-            },
-            "camera": {
-                "head": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0,
-                    "pxPerMM": {
-                        "x": 50.0,
-                        "y": 50.0
-                    },
-                    "path": "",
-                    "binary_thresh": 150,
-                    "grabScriptPath": ""
-                },
-                "bed": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0,
-                    "pxPerMM": {
-                        "x": 50.0,
-                        "y": 50.0
-                    },
-                    "path": "",
-                    "binary_thresh": 150,
-                    "grabScriptPath": ""
-                },
-                "image_logging": False
             }
         }
 
@@ -195,9 +168,6 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
                 self._updateUI("OPERATION", "pick")
 
-                self._logger.info( "Move camera to part: " + str(self._currentPart))
-                self._moveCameraToPart(self._currentPart)
-
                 self._printer.commands("M400")
                 self._printer.commands("G4 P1")
                 self._printer.commands("M400")
@@ -228,9 +198,6 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
             if self._state == self.STATE_PICK:
                 self._state = self.STATE_ALIGN
                 self._logger.info("Pick part " + str(self._currentPart))
-
-                # generate new imageProcessing object with updated settings
-                self.imgproc = ImageProcessing(float(self._settings.get(["tray", "boxsize"])), int(self._settings.get(["camera", "bed", "binary_thresh"])), int(self._settings.get(["camera", "head", "binary_thresh"])))
 
                 self._pickPart(self._currentPart)
                 self._printer.commands("M400")
@@ -280,79 +247,9 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
                 return (None,) # suppress command
 
-        # handle camera positioning for external request (helper function)
-        if "M362 OctoMagnetPNP_camera_external" in cmd:
-            result = self._grabImages("HEAD")
-
-            # the current printjob is resumed and octoPNP is set into default state
-            # before returning the obtained image by callback to allow recursive executions
-            # of the camera_helper by 3. party plugins (the camera helper is triggered from within the callback method).
-
-            # resume paused printjob into normal operation
-            if (self._printer.is_paused() or self._printer.is_pausing()) and not self._helper_was_paused:
-                self._printer.resume_print()
-
-            # leave external state
-            self._state = self.STATE_NONE
-
-            if result:
-                if self._helper_callback:
-                    self._helper_callback(self._settings.get(["camera", "head", "path"]))
-            else:
-                if self._helper_callback:
-                    self._helper_callback(False)
-
-            if not self._helper_callback:
-                self._logger.info("Unable to return image to calling plugin, invalid callback")
-
-            # suppress the magic command (M365)
-            return (None,)
-
-
-    def _moveCameraToPart(self, partnr):
-        # switch to primary extruder, since the head camera is relative to this extruder and the offset to PNP nozzle might not be known (firmware offset)
-        self._printer.commands("T0")
-        # move camera to part position
-        tray_offset = self._getTrayPosFromPartNr(partnr) # get box position on tray
-        camera_offset = [tray_offset[0]-float(self._settings.get(["camera", "head", "x"])), tray_offset[1]-float(self._settings.get(["camera", "head", "y"])), float(self._settings.get(["camera", "head", "z"])) + tray_offset[2]]
-        cmd = "G1 X" + str(camera_offset[0]) + " Y" + str(camera_offset[1]) + " F" + str(self.FEEDRATE)
-        self._logger.info("Move camera to: " + cmd)
-        self._printer.commands("G91") # relative positioning
-        self._printer.commands("G1 Z5 F" + str(self.FEEDRATE)) # lift printhead
-        self._printer.commands("G90") # absolute positioning
-        self._printer.commands(cmd)
-        self._printer.commands("G1 Z" + str(camera_offset[2]) + " F" + str(self.FEEDRATE)) # lower printhead
-
 
     def _pickPart(self, partnr):
-        # wait n seconds to make sure cameras are ready
-        #time.sleep(1) # is that necessary?
-
         part_offset = [0, 0]
-
-        self._logger.info("Taking head picture NOW") # Debug output
-
-        # take picture
-        if self._grabImages("HEAD"):
-            headPath = self._settings.get(["camera", "head", "path"])
-
-            #update UI
-            self._updateUI("HEADIMAGE", headPath)
-
-            #extract position information
-            part_offset = self.imgproc.locatePartInBox(headPath, True)
-            if not part_offset:
-                self._updateUI("ERROR", self.imgproc.getLastErrorMessage())
-                part_offset = [0, 0]
-            else:
-                # update UI
-                self._updateUI("HEADIMAGE", self.imgproc.getLastSavedImagePath())
-
-                # Log image for debugging and documentation
-                if self._settings.get(["camera", "image_logging"]): self._saveDebugImage(headPath)
-        else:
-            cm_x=cm_y=0
-            self._updateUI("ERROR", "Camera not ready")
 
         self._logger.info("PART OFFSET:" + str(part_offset))
 
@@ -380,33 +277,12 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
         self._printer.commands("G1 X" + str(vacuum_dest[0]) + " Y" + str(vacuum_dest[1]) + " F"  + str(self.FEEDRATE))
         self._printer.commands("G1 Z" + str(vacuum_dest[2]) + " F"  + str(self.FEEDRATE))
-        self._logger.info("Moving to bed camera: %s", cmd)
 
     def _alignPart(self, partnr):
         orientation_offset = 0
 
         # find destination at the object
         destination = self.smdparts.getPartDestination(partnr)
-
-        # take picture
-        self._logger.info("Taking bed align picture NOW")
-        bedPath = self._settings.get(["camera", "bed", "path"])
-        if self._grabImages("BED"):
-            #update UI
-            self._updateUI("BEDIMAGE", bedPath)
-
-            # get rotation offset
-            orientation_offset = self.imgproc.getPartOrientation(bedPath, float(self._settings.get(["camera", "bed", "pxPerMM", "x"])), 0)
-            if not orientation_offset:
-                self._updateUI("ERROR", self.imgproc.getLastErrorMessage())
-                orientation_offset = 0.0
-            # update UI
-            self._updateUI("BEDIMAGE", self.imgproc.getLastSavedImagePath())
-
-            # Log image for debugging and documentation
-            if self._settings.get(["camera", "image_logging"]): self._saveDebugImage(bedPath)
-        else:
-            self._updateUI("ERROR", "Camera not ready")
 
         #rotate object
         self._printer.commands("G92 E0")
@@ -418,30 +294,6 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         # find destination at the object
         destination = self.smdparts.getPartDestination(partnr)
 
-        # take picture to find part offset
-        self._logger.info("Taking bed offset picture NOW")
-        bedPath = self._settings.get(["camera", "bed", "path"])
-        if self._grabImages("BED"):
-
-            orientation_offset = self.imgproc.getPartOrientation(bedPath, float(self._settings.get(["camera", "bed", "pxPerMM", "x"])), destination[3])
-            if not orientation_offset:
-                self._updateUI("ERROR", self.imgproc.getLastErrorMessage())
-                orientation_offset = 0.0
-
-            displacement = self.imgproc.getPartPosition(bedPath, float(self._settings.get(["camera", "bed", "pxPerMM", "x"])))
-            if not displacement:
-                self._updateUI("ERROR", self.imgproc.getLastErrorMessage())
-                displacement = [0, 0]
-
-            #update UI
-            self._updateUI("BEDIMAGE", self.imgproc.getLastSavedImagePath())
-			
-            # Log image for debugging and documentation
-            if self._settings.get(["camera", "image_logging"]):
-                self._saveDebugImage(bedPath)
-            else:
-                self._updateUI("ERROR", "Camera not ready")
-
         self._logger.info("displacement - x: " + str(displacement[0]) + " y: " + str(displacement[1]))
 
         # Double check whether orientation is now correct. Important on unreliable hardware...
@@ -452,17 +304,6 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
             self._printer.commands("G1 E" + str(-orientation_offset) + " F" + str(self.FEEDRATE))
             # wait a second to execute the rotation
             time.sleep(2)
-            # take another image for UI
-            if self._grabImages("BED"):
-
-                displacement = self.imgproc.getPartPosition(bedPath, float(self._settings.get(["camera", "bed", "pxPerMM", "x"])))
-                #update UI
-                self._updateUI("BEDIMAGE", self.imgproc.getLastSavedImagePath())
-
-                # Log image for debugging and documentation
-                if self._settings.get(["camera", "image_logging"]): self._saveDebugImage(bedPath)
-            else:
-                self._updateUI("ERROR", "Camera not ready")
 
         # move to destination
         dest_z = destination[2]+self.smdparts.getPartHeight(partnr)-float(self._settings.get(["vacnozzle", "z_pressure"]))
@@ -525,33 +366,6 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
             self._printer.commands(line)
         self._printer.commands("G4 S1")
 
-    def _grabImages(self, camera):
-        result = True
-        grabScript = "";
-        if(camera == "HEAD"):
-            grabScript = self._settings.get(["camera", "head", "grabScriptPath"])
-        if(camera == "BED"):
-            grabScript = self._settings.get(["camera", "bed", "grabScriptPath"])
-        #os.path.dirname(os.path.realpath(__file__)) + "/cameras/grab.sh"
-        try:
-            if call([grabScript]) != 0:
-                self._logger.info("ERROR: " + camera + " camera not ready!")
-                result = False
-        except:
-            self._logger.info("ERROR: Unable to execute " + camera + " camera grab script!")
-            self._logger.info("Script path: " + grabScript)
-            result = False
-        return result
-
-    def _saveDebugImage(self, path):
-        name, ext = os.path.splitext(os.path.basename(path))
-        timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M:%S')
-        filename = "/" + name + "_" + timestamp + ext
-        dest_path = os.path.dirname(path) + filename
-        shutil.copy(path, dest_path)
-        self._logger.info("saved %s image to %s", name, dest_path)
-
-
     def _updateUI(self, event, parameter):
         data = dict(
             info="dummy"
@@ -591,81 +405,9 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
             data = dict(
                 type = parameter,
             )
-        elif event is "HEADIMAGE" or event is "BEDIMAGE":
-            # open image and convert to base64
-            f = open(parameter,"r")
-            data = dict(
-                src = "data:image/" + os.path.splitext(parameter)[1] + ";base64,"+base64.b64encode(bytes(f.read()))
-            )
 
         message = dict(
             event=event,
             data=data
         )
         self._pluginManager.send_plugin_message("OctoMagnetPNP", message)
-
-
-
-    # Helper function to provide camera access to other plugins.
-    # Returns resolution for 'camera' (HEAD or BED) as a dict with "x" and "y".
-    def _helper_get_head_camera_pxPerMM(self, camera):
-        if camera == "HEAD":
-            return dict(
-                x = float(self._settings.get(["camera", "head", "pxPerMM", "x"])),
-                y = float(self._settings.get(["camera", "head", "pxPerMM", "y"]))
-            )
-        if camera == "BED":
-            return dict(
-                x = float(self._settings.get(["camera", "bed", "pxPerMM", "x"])),
-                y = float(self._settings.get(["camera", "bed", "pxPerMM", "y"]))
-            )
-        return 0.0
-
-
-    # Helper function to provide camera access to other plugins.
-    # Moves printhead with camera to given x/y coordinates, takes
-    # a picture and returns by invoking the callback function.
-    # Can only be used for the head camera, since bed camera is fixed and can't be moved to a x/y coordinate.
-    #
-    # adjust_focus: add camera focus distance to current z position.
-    # Can be disabled to take multiple shots without moving the z-axis
-    def _helper_get_head_camera_image_xy(self, x, y, callback, adjust_focus=True):
-        result = False;
-
-        self._logger.info("Trying to take image at pos [" + str(x) + ":" + str(y) + "] for external plugin")
-
-        if self._state == self.STATE_NONE:
-            self._state = self.STATE_EXTERNAL
-            result = True
-            self._helper_was_paused = False
-            if self._printer.is_paused() or self._printer.is_pausing():
-                self._helper_was_paused = True
-            if self._printer.is_printing() or self._printer.is_resuming(): # interrupt running printjobs to prevent octoprint from sending further gcode lines from the file
-                self._printer.pause_print()
-
-            # store callback
-            self._helper_callback = callback
-
-            target_position = [x-float(self._settings.get(["camera", "head", "x"])), y-float(self._settings.get(["camera", "head", "y"])), float(self._settings.get(["camera", "head", "z"]))]
-            cmd = "G1 X" + str(target_position[0]) + " Y" + str(target_position[1]) + " F" + str(self.FEEDRATE)
-
-            # switch to primary extruder, since the head camera is relative to this extruder and the offset to PNP nozzle might not be known (firmware offset)
-            self._printer.commands("T0")
-
-            if adjust_focus:
-                self._printer.commands("G91") # relative positioning
-                self._printer.commands("G1 Z" + str(target_position[2]) + " F" + str(self.FEEDRATE)) # lift printhead
-                self._printer.commands("G90") # absolute positioning
-            self._printer.commands(cmd)
-
-            self._printer.commands("M400")
-            self._printer.commands("G4 P1")
-            self._printer.commands("M400")
-            for i in range(10):
-                self._printer.commands("G4 P1")
-            self._printer.commands("M362 OctoMagnetPNP_camera_external")
-
-        else:
-            self._logger.info("Abort, OctoMagnetPNP is busy (not in state NONE, current state: " + str(self._state) + ")")
-
-        return result
