@@ -129,10 +129,19 @@ function smdTray(cols, rows, boxSize, canvas) {
             var ctx = _trayCanvas.getContext("2d");
             if (ctx) {
                 ctx.lineWidth = 4;
-                ctx.strokeStyle = "green";
+                ctx.strokeStyle = "black";
                 ctx.fillStyle = "white";
                 ctx.strokeRect (col*size+ctx.lineWidth/2,(_rows-1)*size-row*size+ctx.lineWidth/2,size-ctx.lineWidth/2,size-ctx.lineWidth/2);
                 ctx.fillRect (col*size+ctx.lineWidth,(_rows-1)*size-row*size+ctx.lineWidth,size-ctx.lineWidth,size-ctx.lineWidth);
+                x = col * size + ctx.lineWidth / 2 + size / 2;
+                y = (_rows - 1) * size - row * size + ctx.lineWidth / 2 + size / 2;
+                ctx.fillStyle = '#aaa';
+                ctx.beginPath();
+                for (let i = 0; i < 360; i += 60) {
+                    ctx.lineTo(x + Math.sin(i * Math.PI / 180) * size * 0.45, y + Math.cos(i * Math.PI / 180) * size * 0.45);
+                }
+                ctx.closePath();
+                ctx.fill();
             }
         }
     }
