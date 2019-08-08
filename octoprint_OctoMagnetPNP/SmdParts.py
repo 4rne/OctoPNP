@@ -1,7 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import
 
-__author__ = "Florens Wasserfall <wasserfall@kalanka.de>"
+__author__ = "Florens Wasserfall <wasserfall@kalanka.de> Arne Büngener <arne.buengener@googlemail.com>"
 __license__ = 'GNU Affero General Public License http://www.gnu.org/licenses/agpl.html'
 
 

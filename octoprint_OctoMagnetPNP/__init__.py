@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with OctoMagnetPNP.  If not, see <http://www.gnu.org/licenses/>.
 
-    Main author: Florens Wasserfall <wasserfall@kalanka.de>
+    Main authors: Florens Wasserfall <wasserfall@kalanka.de> Arne Büngener <arne.buengener@googlemail.com>
 """
 
 from __future__ import absolute_import
@@ -97,10 +97,8 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                 "y": 0,
                 "z_pressure": 0,
                 "extruder_nr": 2,
-                "grip_vacuum_gcode": "M340 P0 S1200",
-                "release_vacuum_gcode": "M340 P0 S1500",
-                "lower_nozzle_gcode": "",
-                "lift_nozzle_gcode": ""
+                "grip_magnet_gcode": "M42 P48 S255",
+                "release_magnet_gcode": "M42 P48 S0",
             }
         }
 
@@ -267,7 +265,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._lowerVacuumNozzle()
         self._printer.commands("G1 Z" + str(vacuum_dest[2]) + "F1000")
         self._gripVacuum()
-        self._printer.commands("G4 S1")
+        self._printer.commands("G4 P500")
         self._printer.commands("G1 Z" + str(vacuum_dest[2]+5) + "F1000")
 
         # move to bed camera
@@ -317,7 +315,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
         #release part
         self._releaseVacuum()
-        self._printer.commands("G4 S2") #some extra time to make sure the part has released and the remaining vacuum is gone
+        self._printer.commands("G4 P500") #some extra time to make sure the part has released and the remaining vacuum is gone
         self._printer.commands("G1 Z" + str(dest_z+10) + " F" + str(self.FEEDRATE)) # lift printhead again
         self._liftVacuumNozzle()
 
@@ -337,34 +335,34 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
     def _gripVacuum(self):
         self._printer.commands("M400")
         self._printer.commands("M400")
-        self._printer.commands("G4 S1")
-        for line in self._settings.get(["vacnozzle", "grip_vacuum_gcode"]).splitlines():
+        self._printer.commands("G4 P500")
+        for line in self._settings.get(["vacnozzle", "grip_magnet_gcode"]).splitlines():
             self._printer.commands(line)
-        self._printer.commands("G4 S1")
+        self._printer.commands("G4 P500")
 
     def _releaseVacuum(self):
         self._printer.commands("M400")
         self._printer.commands("M400")
-        self._printer.commands("G4 S1")
-        for line in self._settings.get(["vacnozzle", "release_vacuum_gcode"]).splitlines():
+        self._printer.commands("G4 P500")
+        for line in self._settings.get(["vacnozzle", "release_magnet_gcode"]).splitlines():
             self._printer.commands(line)
-        self._printer.commands("G4 S1")
+        self._printer.commands("G4 P500")
 
     def _lowerVacuumNozzle(self):
         self._printer.commands("M400")
         self._printer.commands("M400")
-        self._printer.commands("G4 S1")
+        self._printer.commands("G4 P500")
         for line in self._settings.get(["vacnozzle", "lower_nozzle_gcode"]).splitlines():
             self._printer.commands(line)
-        self._printer.commands("G4 S1")
+        self._printer.commands("G4 P500")
 
     def _liftVacuumNozzle(self):
         self._printer.commands("M400")
         self._printer.commands("M400")
-        self._printer.commands("G4 S1")
+        self._printer.commands("G4 P500")
         for line in self._settings.get(["vacnozzle", "lift_nozzle_gcode"]).splitlines():
             self._printer.commands(line)
-        self._printer.commands("G4 S1")
+        self._printer.commands("G4 P500")
 
     def _updateUI(self, event, parameter):
         data = dict(
