@@ -21,7 +21,7 @@ function smdTray(cols, rows, boxSize, canvas) {
         _parts[part.id].col = (part.partPosition-1) % _cols+1;
 
         // and draw to canvas
-        _drawPart(part.id, "black");
+        _drawPart(part.id, "#aaa");
     }
 
     self.selectPart = function(x, y) {
@@ -30,7 +30,7 @@ function smdTray(cols, rows, boxSize, canvas) {
         row = Math.floor(((_rows*canvasBoxSize)-y)/(canvasBoxSize-1)) + 1;
 
         for (var id in _parts) {
-            _drawPart(id, "black");
+            _drawPart(id, "#aaa");
         }
 
         var partId = _getPartId(col, row);
@@ -87,36 +87,22 @@ function smdTray(cols, rows, boxSize, canvas) {
 				ctx.textBaseline = "top";
 				ctx.fillText(part.name, col_offset, row_offset);
 
-				//draw part shapes
-				if( part.hasOwnProperty("shape") ) {
-					var points = part.shape;
+                let size = 15;
+                let x = col_offset - 1 + _trayBoxSize + 20;
+                let y = row_offset - 1 + _trayBoxSize + 20;
 
-					ctx.beginPath();
-					ctx.strokeStyle = color;
-					ctx.lineWidth = 1;
-					ctx.fillStyle = color;
-					if(points.length > 0) {
-						ctx.moveTo(points[0][0]*scale+col_offset+canvasBoxSize/2, points[0][1]*scale+row_offset+canvasBoxSize/2);
-						for(var i=0; i < points.length; i++) {
-							ctx.lineTo(points[i][0]*scale+col_offset+canvasBoxSize/2, points[i][1]*scale+row_offset+canvasBoxSize/2);
-						}
-						//close loop
-						ctx.lineTo(points[0][0]*scale+col_offset+canvasBoxSize/2, points[0][1]*scale+row_offset+canvasBoxSize/2);
-						ctx.lineTo(points[1][0]*scale+col_offset+canvasBoxSize/2, points[1][1]*scale+row_offset+canvasBoxSize/2);
-						ctx.fill();
-					}
-				}
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                for (let i = 0; i < 360; i += 60) {
+                    ctx.lineTo(x + Math.sin(i * Math.PI / 180) * size * 0.45, y + Math.cos(i * Math.PI / 180) * size * 0.45);
+                }
+                ctx.closePath();
+                ctx.fill();
 
-				//draw part pads
-				if( part.hasOwnProperty("pads") ) {
-					var pads = part.pads;
-
-					ctx.beginPath();
-					ctx.fillStyle = "#999999";
-					for(var i=0; i < pads.length; i++) {
-						ctx.fillRect(pads[i][0]*scale+col_offset+canvasBoxSize/2, pads[i][1]*scale+row_offset+canvasBoxSize/2, (pads[i][2]-pads[i][0])*scale, (pads[i][3]-pads[i][1])*scale);
-					}
-				}
+                ctx.beginPath();
+                ctx.fillStyle = "white";
+                ctx.arc(x, y, size / 7.0, 0, 2 * Math.PI);
+                ctx.fill();
             }
         }
     }
@@ -135,13 +121,14 @@ function smdTray(cols, rows, boxSize, canvas) {
                 ctx.fillRect (col*size+ctx.lineWidth,(_rows-1)*size-row*size+ctx.lineWidth,size-ctx.lineWidth,size-ctx.lineWidth);
                 x = col * size + ctx.lineWidth / 2 + size / 2;
                 y = (_rows - 1) * size - row * size + ctx.lineWidth / 2 + size / 2;
-                ctx.fillStyle = '#aaa';
+                ctx.fillStyle = '#000';
                 ctx.beginPath();
                 for (let i = 0; i < 360; i += 60) {
                     ctx.lineTo(x + Math.sin(i * Math.PI / 180) * size * 0.45, y + Math.cos(i * Math.PI / 180) * size * 0.45);
                 }
                 ctx.closePath();
-                ctx.fill();
+                ctx.lineWidth = 1;
+                ctx.stroke();
             }
         }
     }
