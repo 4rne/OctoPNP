@@ -381,7 +381,8 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                             name = self.smdparts.getPartName(partId),
                             partPosition = self.smdparts.getPartPosition(partId),
                             shape = self.smdparts.getPartShape(partId),
-                            pads = self.smdparts.getPartPads(partId)
+                            type = self.smdparts.getPartType(partId),
+                            thread=self.smdparts.getPartThread(partId)
                         )
                     )
 

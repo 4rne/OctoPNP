@@ -16,12 +16,13 @@ function smdTray(cols, rows, boxSize, canvas) {
         // sanitiy checks!?
         // add part to dict
         _parts[part.id] = part;
+        console.log(part)
 
         _parts[part.id].row = parseInt(((part.partPosition-1) / _cols)) + 1;
         _parts[part.id].col = (part.partPosition-1) % _cols+1;
 
         // and draw to canvas
-        _drawPart(part.id, "#aaa");
+        _drawPart(part.id, part.thread, part.type, "#aaa");
     }
 
     self.selectPart = function(x, y) {
@@ -30,12 +31,12 @@ function smdTray(cols, rows, boxSize, canvas) {
         row = Math.floor(((_rows*canvasBoxSize)-y)/(canvasBoxSize-1)) + 1;
 
         for (var id in _parts) {
-            _drawPart(id, "#aaa");
+            _drawPart(id, parts[part.id].thread, parts[part.id].type, "#aaa");
         }
 
         var partId = _getPartId(col, row);
         if(partId) {
-            _drawPart(partId, "red");
+            _drawPart(partId, parts[part.id].thread, parts[part.id].type, "red");
         }
         return partId;
     }
@@ -67,7 +68,7 @@ function smdTray(cols, rows, boxSize, canvas) {
 	
 	
 	//draw a part into a tray box
-    function _drawPart(partID, color) {
+    function _drawPart(partID, thread, type, color) {
         part = _parts[partID];
 
 		//clear old box
@@ -87,14 +88,22 @@ function smdTray(cols, rows, boxSize, canvas) {
 				ctx.textBaseline = "top";
 				ctx.fillText(part.name, col_offset, row_offset);
 
-                let size = 15;
+                let size = parseFloat(thread) * 5;
                 let x = col_offset - 1 + _trayBoxSize + 20;
                 let y = row_offset - 1 + _trayBoxSize + 20;
 
                 ctx.fillStyle = color;
                 ctx.beginPath();
-                for (let i = 0; i < 360; i += 60) {
-                    ctx.lineTo(x + Math.sin(i * Math.PI / 180) * size * 0.45, y + Math.cos(i * Math.PI / 180) * size * 0.45);
+                if(type === "squarenut") {
+                    for (let i = 0; i < 360; i += 60) {
+                        ctx.lineTo(x + Math.sin(i * Math.PI / 180) * size * 0.45, y + Math.cos(i * Math.PI / 180) * size * 0.45);
+                    }
+                }
+                else if (type === "hexnut") {
+                    ctx.lineTo(x - size / 2, y -  size / 2);
+                    ctx.lineTo(x +  size / 2,y - size / 2);
+                    ctx.lineTo(x + size / 2,y + size / 2);
+                    ctx.lineTo(x - size / 2, y + size / 2);
                 }
                 ctx.closePath();
                 ctx.fill();
