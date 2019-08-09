@@ -135,9 +135,18 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 ctx.fillStyle = '#000';
 
                 partBoxSize = partSize * 5 + 2
+                nutShape = _config[(parseInt(col)) * parseInt(_rows) + parseInt(row)].nut
                 ctx.beginPath();
-                for (let i = 0; i < 360; i += 60) {
-                    ctx.lineTo(x + Math.sin(i * Math.PI / 180) * partBoxSize * 0.45, y + Math.cos(i * Math.PI / 180) * partBoxSize * 0.45);
+                if (nutShape === "hex") {
+                    for (let i = 0; i < 360; i += 60) {
+                        ctx.lineTo(x + Math.sin(i * Math.PI / 180) * partBoxSize * 0.45, y + Math.cos(i * Math.PI / 180) * partBoxSize * 0.45);
+                    }
+                } else if (nutShape === "square") {
+
+                    ctx.lineTo(x - partBoxSize / 2, y - partBoxSize / 2);
+                    ctx.lineTo(x + partBoxSize / 2, y - partBoxSize / 2);
+                    ctx.lineTo(x + partBoxSize / 2, y + partBoxSize / 2);
+                    ctx.lineTo(x - partBoxSize / 2, y + partBoxSize / 2);
                 }
                 ctx.closePath();
                 ctx.lineWidth = 1;
