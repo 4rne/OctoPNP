@@ -91,8 +91,8 @@ function smdTray(cols, rows, boxSize, canvas, config) {
 				ctx.fillText(part.name, col_offset, row_offset);
 
                 let size = parseFloat(thread) * 5;
-                let x = col_offset - 1 + _trayBoxSize + 20;
-                let y = row_offset - 1 + _trayBoxSize + 20;
+                x = (part.col - 1) * canvasBoxSize + 4 / 2 + canvasBoxSize / 2;
+                y = (_rows) * canvasBoxSize - (part.row - 1) * canvasBoxSize + 4 / 2 - canvasBoxSize / 2;
 
                 ctx.fillStyle = color;
                 ctx.beginPath();
