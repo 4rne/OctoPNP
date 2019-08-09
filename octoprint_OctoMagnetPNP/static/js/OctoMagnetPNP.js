@@ -19,7 +19,7 @@ $(function() {
         // have been retrieved from the OctoPrint backend and thus the SettingsViewModel been properly populated.
         self.onBeforeBinding = function() {
             self.traySettings = self.settings.settings.plugins.OctoMagnetPNP.tray;
-            _smdTray = new smdTray(self.traySettings.columns(), self.traySettings.rows(), self.traySettings.boxsize(), _smdTrayCanvas);
+            _smdTray = new smdTray(self.traySettings.columns(), self.traySettings.rows(), self.traySettings.boxsize(), _smdTrayCanvas, self.traySettings.boxconfiguration());
             _smdTrayCanvas.addEventListener("click", self.onSmdTrayClick, false); //"click, dblclick"
             _smdTrayCanvas.addEventListener("dblclick", self.onSmdTrayDblclick, false); //"click, dblclick"
         }

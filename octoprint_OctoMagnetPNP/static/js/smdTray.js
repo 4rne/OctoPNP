@@ -1,10 +1,11 @@
-function smdTray(cols, rows, boxSize, canvas) {
+function smdTray(cols, rows, boxSize, canvas, config) {
 	var self = this;
 
 	var _cols = cols;
     var _rows= rows;
     var _trayBoxSize = boxSize;
     var _trayCanvas = canvas;
+    var _config = JSON.parse(config);
     var _parts = {};
 
     self.erase = function() {
@@ -16,7 +17,6 @@ function smdTray(cols, rows, boxSize, canvas) {
         // sanitiy checks!?
         // add part to dict
         _parts[part.id] = part;
-        console.log(part)
 
         _parts[part.id].row = parseInt(((part.partPosition-1) / _cols)) + 1;
         _parts[part.id].col = (part.partPosition-1) % _cols+1;
@@ -59,7 +59,8 @@ function smdTray(cols, rows, boxSize, canvas) {
 
 				for(var x=0; x<_cols; x++) {
                     for(var y=0; y<_rows; y++) {
-                        _drawTrayBox(x+1, y+1, canvasBoxSize);
+                        console.log(x + "," + y + ": " + _config[parseInt(x) * parseInt(_rows) + parseInt(y)].thread)
+                        _drawTrayBox(x + 1, y + 1, canvasBoxSize, _config[parseInt(x) * parseInt(_rows) + parseInt(y)].thread);
                     }
                 }
             }
@@ -72,8 +73,9 @@ function smdTray(cols, rows, boxSize, canvas) {
         part = _parts[partID];
 
 		//clear old box
-		var canvasBoxSize = _getCanvasBoxSize();
-		_drawTrayBox(part.col, part.row, canvasBoxSize);
+        var canvasBoxSize = _getCanvasBoxSize();
+        console.log(part.col + "," + part.row + ": " + _config[(parseInt(part.col) - 1) * parseInt(_rows) + parseInt(part.row) - 1].thread);
+        _drawTrayBox(part.col, part.row, canvasBoxSize, _config[(parseInt(part.col) - 1) * parseInt(_rows) + parseInt(part.row) - 1].thread);
 
 		if (_trayCanvas && _trayCanvas.getContext) {
             var ctx = _trayCanvas.getContext("2d");
@@ -94,12 +96,12 @@ function smdTray(cols, rows, boxSize, canvas) {
 
                 ctx.fillStyle = color;
                 ctx.beginPath();
-                if(type === "squarenut") {
+                if (type === "hexnut") {
                     for (let i = 0; i < 360; i += 60) {
                         ctx.lineTo(x + Math.sin(i * Math.PI / 180) * size * 0.45, y + Math.cos(i * Math.PI / 180) * size * 0.45);
                     }
                 }
-                else if (type === "hexnut") {
+                else if (type === "squarenut") {
                     ctx.lineTo(x - size / 2, y -  size / 2);
                     ctx.lineTo(x +  size / 2,y - size / 2);
                     ctx.lineTo(x + size / 2,y + size / 2);
@@ -117,7 +119,7 @@ function smdTray(cols, rows, boxSize, canvas) {
     }
 
     // draw a single tray box
-    function _drawTrayBox(col, row, size) {
+    function _drawTrayBox(col, row, size, partSize) {
         col -=1;
         row -=1;
         if (_trayCanvas && _trayCanvas.getContext) {
@@ -131,9 +133,11 @@ function smdTray(cols, rows, boxSize, canvas) {
                 x = col * size + ctx.lineWidth / 2 + size / 2;
                 y = (_rows - 1) * size - row * size + ctx.lineWidth / 2 + size / 2;
                 ctx.fillStyle = '#000';
+
+                partBoxSize = partSize * 5 + 2
                 ctx.beginPath();
                 for (let i = 0; i < 360; i += 60) {
-                    ctx.lineTo(x + Math.sin(i * Math.PI / 180) * size * 0.45, y + Math.cos(i * Math.PI / 180) * size * 0.45);
+                    ctx.lineTo(x + Math.sin(i * Math.PI / 180) * partBoxSize * 0.45, y + Math.cos(i * Math.PI / 180) * partBoxSize * 0.45);
                 }
                 ctx.closePath();
                 ctx.lineWidth = 1;
