@@ -254,19 +254,19 @@ $(function() {
             switch (corner) {
                 case "TL": 
                     var rows = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rows());
-                    cornerOffsetY = rows*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (rows+1)*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rimsize());
+                    cornerOffsetY = rows*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (rows+1);
                     self.statusTrayPosition(false);
                     break;
                 case "TR": 
                     var rows = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rows());
                     var cols = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.columns());
-                    cornerOffsetY = rows*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (rows+1)*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rimsize());
-                    cornerOffsetX = cols*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (cols+1)*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rimsize());
+                    cornerOffsetY = rows*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (rows+1);
+                    cornerOffsetX = cols*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (cols+1);
                     self.statusTrayPosition(false);
                     break;
                 case "BR": 
                     var cols = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.columns());
-                    cornerOffsetX = cols*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (cols+1)*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.rimsize());
+                    cornerOffsetX = cols*parseFloat(self.settings.plugins.OctoMagnetPNP.tray.boxsize()) + (cols+1);
                     self.statusTrayPosition(false);
                     break;
                 default:

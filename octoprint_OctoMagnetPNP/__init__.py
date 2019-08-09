@@ -89,8 +89,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                 "z": 0,
                 "rows" : 5,
                 "columns": 5,
-                "boxsize": 10,
-                "rimsize": 1.0
+                "boxsize": 10
             },
             "vacnozzle": {
                 "x": 0,
@@ -327,9 +326,8 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._logger.info("Selected object: %d. Position: box %d, row %d, col %d", partnr, partPos, row, col)
 
         boxsize = float(self._settings.get(["tray", "boxsize"]))
-        rimsize = float(self._settings.get(["tray", "rimsize"]))
-        x = (col-1)*boxsize + boxsize/2 + col*rimsize + float(self._settings.get(["tray", "x"]))
-        y = (row-1)*boxsize + boxsize/2 + row*rimsize + float(self._settings.get(["tray", "y"]))
+        x = (col-1)*boxsize + boxsize/2 + col + float(self._settings.get(["tray", "x"]))
+        y = (row-1)*boxsize + boxsize/2 + row + float(self._settings.get(["tray", "y"]))
         return [x, y, float(self._settings.get(["tray", "z"]))]
 
     def _gripVacuum(self):
