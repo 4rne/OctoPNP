@@ -59,7 +59,6 @@ function smdTray(cols, rows, boxSize, canvas, config) {
 
 				for(var x=0; x<_cols; x++) {
                     for(var y=0; y<_rows; y++) {
-                        console.log(x + "," + y + ": " + _config[parseInt(x) * parseInt(_rows) + parseInt(y)].thread)
                         _drawTrayBox(x + 1, y + 1, canvasBoxSize, _config[parseInt(x) * parseInt(_rows) + parseInt(y)].thread);
                     }
                 }
@@ -74,7 +73,6 @@ function smdTray(cols, rows, boxSize, canvas, config) {
 
 		//clear old box
         var canvasBoxSize = _getCanvasBoxSize();
-        console.log(part.col + "," + part.row + ": " + _config[(parseInt(part.col) - 1) * parseInt(_rows) + parseInt(part.row) - 1].thread);
         _drawTrayBox(part.col, part.row, canvasBoxSize, _config[(parseInt(part.col) - 1) * parseInt(_rows) + parseInt(part.row) - 1].thread);
 
 		if (_trayCanvas && _trayCanvas.getContext) {
