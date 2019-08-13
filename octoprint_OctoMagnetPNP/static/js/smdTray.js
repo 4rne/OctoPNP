@@ -31,12 +31,12 @@ function smdTray(cols, rows, boxSize, canvas, config) {
         row = Math.floor(((_rows*canvasBoxSize)-y)/(canvasBoxSize-1)) + 1;
 
         for (var id in _parts) {
-            _drawPart(id, parts[part.id].thread, parts[part.id].type, "#aaa");
+            _drawPart(id, _parts[part.id].thread, _parts[part.id].type, "#aaa");
         }
 
         var partId = _getPartId(col, row);
         if(partId) {
-            _drawPart(partId, parts[part.id].thread, parts[part.id].type, "red");
+            _drawPart(partId, _parts[part.id].thread, _parts[part.id].type, "red");
         }
         return partId;
     }
