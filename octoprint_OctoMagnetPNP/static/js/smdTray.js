@@ -31,12 +31,12 @@ function smdTray(cols, rows, boxSize, canvas, config) {
         row = Math.floor(((_rows*canvasBoxSize)-y)/(canvasBoxSize-1)) + 1;
 
         for (var id in _parts) {
-            _drawPart(id, _parts[part.id].thread, _parts[part.id].type, "#aaa");
+            _drawPart(id, _parts[id].thread, _parts[id].type, "#aaa");
         }
 
         var partId = _getPartId(col, row);
         if(partId) {
-            _drawPart(partId, _parts[part.id].thread, _parts[part.id].type, "red");
+            _drawPart(partId, _parts[partId].thread, _parts[partId].type, "red");
         }
         return partId;
     }
@@ -132,7 +132,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 y = (_rows - 1) * size - row * size + ctx.lineWidth / 2 + size / 2;
                 ctx.fillStyle = '#000';
 
-                partBoxSize = partSize * 5 + 2
+                partBoxSize = partSize * 5 + 3
                 nutShape = _config[(parseInt(col)) * parseInt(_rows) + parseInt(row)].nut
                 ctx.beginPath();
                 if (nutShape === "hexnut") {

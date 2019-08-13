@@ -95,7 +95,6 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
             "vacnozzle": {
                 "x": 0,
                 "y": 0,
-                "z_pressure": 0,
                 "extruder_nr": 2,
                 "grip_magnet_gcode": "M42 P48 S255",
                 "release_magnet_gcode": "M42 P48 S0",
@@ -254,7 +253,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         tray_offset = self._getTrayPosFromPartNr(partnr)
         vacuum_dest = [tray_offset[0]+part_offset[0]-float(self._settings.get(["vacnozzle", "x"])),\
                          tray_offset[1]+part_offset[1]-float(self._settings.get(["vacnozzle", "y"])),\
-                         tray_offset[2]+self.smdparts.getPartHeight(partnr)-float(self._settings.get(["vacnozzle", "z_pressure"]))]
+                         tray_offset[2]+self.smdparts.getPartHeight(partnr)]
 
         # move vac nozzle to part and pick
         self._printer.commands("T" + str(self._settings.get(["vacnozzle", "extruder_nr"])))
@@ -262,19 +261,10 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._printer.commands(cmd)
         self._printer.commands("G1 Z" + str(vacuum_dest[2]+10))
         self._releaseVacuum()
-        self._lowerVacuumNozzle()
         self._printer.commands("G1 Z" + str(vacuum_dest[2]) + "F1000")
         self._gripVacuum()
         self._printer.commands("G4 P500")
         self._printer.commands("G1 Z" + str(vacuum_dest[2]+5) + "F1000")
-
-        # move to bed camera
-        vacuum_dest = [float(self._settings.get(["camera", "bed", "x"]))-float(self._settings.get(["vacnozzle", "x"])),\
-                       float(self._settings.get(["camera", "bed", "y"]))-float(self._settings.get(["vacnozzle", "y"])),\
-                       float(self._settings.get(["camera", "bed", "z"]))+self.smdparts.getPartHeight(partnr)]
-
-        self._printer.commands("G1 X" + str(vacuum_dest[0]) + " Y" + str(vacuum_dest[1]) + " F"  + str(self.FEEDRATE))
-        self._printer.commands("G1 Z" + str(vacuum_dest[2]) + " F"  + str(self.FEEDRATE))
 
     def _alignPart(self, partnr):
         orientation_offset = 0
@@ -294,17 +284,8 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
         self._logger.info("displacement - x: " + str(displacement[0]) + " y: " + str(displacement[1]))
 
-        # Double check whether orientation is now correct. Important on unreliable hardware...
-        if(abs(orientation_offset) > 0.5):
-            self._updateUI("INFO", "Incorrect alignment, correcting offset of " + str(-orientation_offset) + "°")
-            self._logger.info("Incorrect alignment, correcting offset of " + str(-orientation_offset) + "°")
-            self._printer.commands("G92 E0")
-            self._printer.commands("G1 E" + str(-orientation_offset) + " F" + str(self.FEEDRATE))
-            # wait a second to execute the rotation
-            time.sleep(2)
-
         # move to destination
-        dest_z = destination[2]+self.smdparts.getPartHeight(partnr)-float(self._settings.get(["vacnozzle", "z_pressure"]))
+        dest_z = destination[2]+self.smdparts.getPartHeight(partnr)
         cmd = "G1 X" + str(destination[0]-float(self._settings.get(["vacnozzle", "x"]))+displacement[0]) \
               + " Y" + str(destination[1]-float(self._settings.get(["vacnozzle", "y"]))+displacement[1]) \
               + " F" + str(self.FEEDRATE)
@@ -317,7 +298,6 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._releaseVacuum()
         self._printer.commands("G4 P500") #some extra time to make sure the part has released and the remaining vacuum is gone
         self._printer.commands("G1 Z" + str(dest_z+10) + " F" + str(self.FEEDRATE)) # lift printhead again
-        self._liftVacuumNozzle()
 
     # get the position of the box (center of the box) containing part x relative to the [0,0] corner of the tray
     def _getTrayPosFromPartNr(self, partnr):
@@ -344,22 +324,6 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._printer.commands("M400")
         self._printer.commands("G4 P500")
         for line in self._settings.get(["vacnozzle", "release_magnet_gcode"]).splitlines():
-            self._printer.commands(line)
-        self._printer.commands("G4 P500")
-
-    def _lowerVacuumNozzle(self):
-        self._printer.commands("M400")
-        self._printer.commands("M400")
-        self._printer.commands("G4 P500")
-        for line in self._settings.get(["vacnozzle", "lower_nozzle_gcode"]).splitlines():
-            self._printer.commands(line)
-        self._printer.commands("G4 P500")
-
-    def _liftVacuumNozzle(self):
-        self._printer.commands("M400")
-        self._printer.commands("M400")
-        self._printer.commands("G4 P500")
-        for line in self._settings.get(["vacnozzle", "lift_nozzle_gcode"]).splitlines():
             self._printer.commands(line)
         self._printer.commands("G4 P500")
 
