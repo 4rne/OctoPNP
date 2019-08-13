@@ -132,19 +132,19 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 y = (_rows - 1) * size - row * size + ctx.lineWidth / 2 + size / 2;
                 ctx.fillStyle = '#000';
 
-                partBoxSize = partSize * 5 + 3
+                partOutlineSize = partSize * 5 + 3
                 nutShape = _config[(parseInt(col)) * parseInt(_rows) + parseInt(row)].nut
                 ctx.beginPath();
                 if (nutShape === "hexnut") {
                     for (let i = 0; i < 360; i += 60) {
-                        ctx.lineTo(x + Math.sin(i * Math.PI / 180) * partBoxSize * 0.45, y + Math.cos(i * Math.PI / 180) * partBoxSize * 0.45);
+                        ctx.lineTo(x + Math.sin(i * Math.PI / 180) * partOutlineSize * 0.45, y + Math.cos(i * Math.PI / 180) * partOutlineSize * 0.45);
                     }
                 } else if (nutShape === "squarenut") {
 
-                    ctx.lineTo(x - partBoxSize / 2, y - partBoxSize / 2);
-                    ctx.lineTo(x + partBoxSize / 2, y - partBoxSize / 2);
-                    ctx.lineTo(x + partBoxSize / 2, y + partBoxSize / 2);
-                    ctx.lineTo(x - partBoxSize / 2, y + partBoxSize / 2);
+                    ctx.lineTo(x - partOutlineSize / 2, y - partOutlineSize / 2);
+                    ctx.lineTo(x + partOutlineSize / 2, y - partOutlineSize / 2);
+                    ctx.lineTo(x + partOutlineSize / 2, y + partOutlineSize / 2);
+                    ctx.lineTo(x - partOutlineSize / 2, y + partOutlineSize / 2);
                 }
                 ctx.closePath();
                 ctx.lineWidth = 2;
