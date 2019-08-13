@@ -29,6 +29,7 @@ import time
 import datetime
 import base64
 import shutil
+import json
 
 from .SmdParts import SmdParts
 
@@ -372,15 +373,30 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                 # compile part information
                 partIds = self.smdparts.getPartIds()
                 partArray = []
+                usedTrayPositions = []
+                config = json.loads(self._settings.get(["tray", "boxconfiguration"]))
                 for partId in partIds:
+                    thread = self.smdparts.getPartThread(partId)
+                    trayPosition = None
+                    # find empty tray position
+                    for num, traybox in enumerate(config):
+                        if(int(traybox.get("thread")) == int(thread) and
+                           traybox.get("nut") == self.smdparts.getPartType(partId) and
+                           num not in usedTrayPositions):
+                            usedTrayPositions.append(num)
+                            trayPosition = num
+                            break
+                    if(trayPosition is None):
+                        print("Error, no tray box for part no " + str(partId) + " left") # TODO Error handling
+                        break
                     partArray.append(
                         dict(
                             id = partId,
                             name = self.smdparts.getPartName(partId),
-                            partPosition = self.smdparts.getPartPosition(partId),
+                            partPosition = trayPosition,
                             shape = self.smdparts.getPartShape(partId),
                             type = self.smdparts.getPartType(partId),
-                            thread=self.smdparts.getPartThread(partId)
+                            thread = thread
                         )
                     )
 

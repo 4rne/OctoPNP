@@ -104,10 +104,6 @@ class SmdParts():
                 # sanitize part name
                 if not part.get("name"):
                     part.set("name", "part " + str(count))
-
-                # box position
-                if result:
-                    result, msg = self._sanitizeTag(part, "position", ["box"], int)
                 # height
                 if result:
                     result, msg = self._sanitizeTag(part, "size", ["height"], float)
@@ -116,11 +112,6 @@ class SmdParts():
                     if(part.find("shape") is not None):
                         for elem in part.find("shape"):
                             result, msg = self._sanitizeAttribute(part, elem, ["x", "y"], float)
-                # pads
-                if result:
-                    if(part.find("pads") is not None):
-                        for elem in part.find("pads"):
-                            result, msg = self._sanitizeAttribute(part, elem, ["x1", "y1", "x2", "y2"], float)
                 # destination
                 if result:
                     result, msg = self._sanitizeTag(part, "destination", ["x", "y", "z"], float)

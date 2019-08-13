@@ -135,11 +135,11 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 partBoxSize = partSize * 5 + 2
                 nutShape = _config[(parseInt(col)) * parseInt(_rows) + parseInt(row)].nut
                 ctx.beginPath();
-                if (nutShape === "hex") {
+                if (nutShape === "hexnut") {
                     for (let i = 0; i < 360; i += 60) {
                         ctx.lineTo(x + Math.sin(i * Math.PI / 180) * partBoxSize * 0.45, y + Math.cos(i * Math.PI / 180) * partBoxSize * 0.45);
                     }
-                } else if (nutShape === "square") {
+                } else if (nutShape === "squarenut") {
 
                     ctx.lineTo(x - partBoxSize / 2, y - partBoxSize / 2);
                     ctx.lineTo(x + partBoxSize / 2, y - partBoxSize / 2);
@@ -147,7 +147,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                     ctx.lineTo(x - partBoxSize / 2, y + partBoxSize / 2);
                 }
                 ctx.closePath();
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 2;
                 ctx.stroke();
             }
         }
