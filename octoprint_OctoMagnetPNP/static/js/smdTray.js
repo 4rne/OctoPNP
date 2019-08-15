@@ -18,8 +18,8 @@ function smdTray(cols, rows, boxSize, canvas, config) {
         // add part to dict
         _parts[part.id] = part;
 
-        _parts[part.id].row = parseInt(((part.partPosition-1) / _cols)) + 1;
-        _parts[part.id].col = (part.partPosition-1) % _cols+1;
+        _parts[part.id].row = parseInt(((part.partPosition) / _cols)) + 1;
+        _parts[part.id].col = (part.partPosition) % _cols + 1;
 
         // and draw to canvas
         _drawPart(part.id, part.thread, part.type, "#aaa");
@@ -57,9 +57,9 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 ctx.fillRect(0,0,size_x,size_y);
                 ctx.strokeRect (0,0,size_x,size_y);
 
-				for(var x=0; x<_cols; x++) {
-                    for(var y=0; y<_rows; y++) {
-                        _drawTrayBox(x + 1, y + 1, canvasBoxSize, _config[parseInt(x) * parseInt(_rows) + parseInt(y)].thread);
+				for(var x = 0; x < _rows; x++) {
+                    for(var y = 0; y < _cols; y++) {
+                        _drawTrayBox(y + 1, x + 1, canvasBoxSize);
                     }
                 }
             }
@@ -73,7 +73,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
 
 		//clear old box
         var canvasBoxSize = _getCanvasBoxSize();
-        _drawTrayBox(part.col, part.row, canvasBoxSize, _config[(parseInt(part.col) - 1) * parseInt(_rows) + parseInt(part.row) - 1].thread);
+        _drawTrayBox(part.col, part.row, canvasBoxSize);
 
 		if (_trayCanvas && _trayCanvas.getContext) {
             var ctx = _trayCanvas.getContext("2d");
@@ -90,7 +90,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
 
                 let size = parseFloat(thread) * 5;
                 x = (part.col - 1) * canvasBoxSize + 4 / 2 + canvasBoxSize / 2;
-                y = (_rows) * canvasBoxSize - (part.row - 1) * canvasBoxSize + 4 / 2 - canvasBoxSize / 2;
+                y = _rows * canvasBoxSize - (part.row - 1) * canvasBoxSize + 4 / 2 - canvasBoxSize / 2;
 
                 ctx.fillStyle = color;
                 ctx.beginPath();
@@ -117,7 +117,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
     }
 
     // draw a single tray box
-    function _drawTrayBox(col, row, size, partSize) {
+    function _drawTrayBox(col, row, size) {
         col -=1;
         row -=1;
         if (_trayCanvas && _trayCanvas.getContext) {
@@ -132,8 +132,10 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 y = (_rows - 1) * size - row * size + ctx.lineWidth / 2 + size / 2;
                 ctx.fillStyle = '#000';
 
+                nutShape = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].nut
+                partSize = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].thread
                 partOutlineSize = partSize * 5 + 3
-                nutShape = _config[(parseInt(col)) * parseInt(_rows) + parseInt(row)].nut
+
                 ctx.beginPath();
                 if (nutShape === "hexnut") {
                     for (let i = 0; i < 360; i += 60) {
