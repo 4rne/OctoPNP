@@ -65,6 +65,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
     FEEDRATE = 4000.000
 
     smdparts = SmdParts()
+    partPositions = {}
 
     def __init__(self):
         self._state = self.STATE_NONE
@@ -301,9 +302,9 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
     # get the position of the box (center of the box) containing part x relative to the [0,0] corner of the tray
     def _getTrayPosFromPartNr(self, partnr):
-        partPos = self.smdparts.getPartPosition(partnr)
-        row = (partPos-1)/int(self._settings.get(["tray", "columns"]))+1
-        col = ((partPos-1)%int(self._settings.get(["tray", "columns"])))+1
+        partPos = self.partPositions[partnr]
+        row = partPos / int(self._settings.get(["tray", "columns"]))
+        col = ((partPos) % int(self._settings.get(["tray", "columns"])))
         self._logger.info("Selected object: %d. Position: box %d, row %d, col %d", partnr, partPos, row, col)
 
         boxsize = float(self._settings.get(["tray", "boxsize"]))
@@ -336,6 +337,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
                 # compile part information
                 partIds = self.smdparts.getPartIds()
+                self.partPositions = {}
                 partArray = []
                 usedTrayPositions = []
                 config = json.loads(self._settings.get(["tray", "boxconfiguration"]))
@@ -343,12 +345,13 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                     thread = self.smdparts.getPartThread(partId)
                     trayPosition = None
                     # find empty tray position
-                    for num, traybox in enumerate(config):
+                    for i, traybox in enumerate(config):
                         if(int(traybox.get("thread")) == int(thread) and
                            traybox.get("nut") == self.smdparts.getPartType(partId) and
-                           num not in usedTrayPositions):
-                            usedTrayPositions.append(num)
-                            trayPosition = num
+                           i not in usedTrayPositions):
+                            usedTrayPositions.append(i)
+                            trayPosition = i
+                            self.partPositions[partId] = i
                             break
                     if(trayPosition is None):
                         print("Error, no tray box for part no " + str(partId) + " left") # TODO Error handling
