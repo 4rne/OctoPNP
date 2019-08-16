@@ -83,8 +83,6 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
     def get_settings_defaults(self):
         return {
-            #"publicHost": None,
-            #"publicPort": None,
             "tray": {
                 "x": 0,
                 "y": 0,
@@ -190,7 +188,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
     Since both, Octoprint and the printer firmware are using a queue, we inject some "G4 P1" commands
     as a "clearance buffer". Those commands simply cause the printer to wait for a millisecond.
     """
-
+    # _pickPart --> _alignPart --> _placePart
     def hook_gcode_sending(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
         if "M362 OctoMagnetPNP" in cmd:
             if self._state == self.STATE_PICK:
@@ -254,16 +252,16 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         tray_offset = self._getTrayPosFromPartNr(partnr)
         vacuum_dest = [tray_offset[0]+part_offset[0]-float(self._settings.get(["magnet", "x"])),\
                          tray_offset[1]+part_offset[1]-float(self._settings.get(["magnet", "y"])),\
-                         tray_offset[2]+self.smdparts.getPartHeight(partnr)]
+                         tray_offset[2]]
 
-        # move vac nozzle to part and pick
+        # move magnet to part and pick
         self._printer.commands("T" + str(self._settings.get(["magnet", "extruder_nr"])))
         cmd = "G1 X" + str(vacuum_dest[0]) + " Y" + str(vacuum_dest[1]) + " F" + str(self.FEEDRATE)
         self._printer.commands(cmd)
         self._printer.commands("G1 Z" + str(vacuum_dest[2]+10))
-        self._releaseVacuum()
+        self._releaseMagnet()
         self._printer.commands("G1 Z" + str(vacuum_dest[2]) + "F1000")
-        self._gripVacuum()
+        self._gripMagnet()
         self._printer.commands("G4 P500")
         self._printer.commands("G1 Z" + str(vacuum_dest[2]+5) + "F1000")
 
@@ -296,7 +294,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._printer.commands("G1 Z" + str(dest_z))
 
         #release part
-        self._releaseVacuum()
+        self._releaseMagnet()
         self._printer.commands("G4 P500") #some extra time to make sure the part has released and the remaining vacuum is gone
         self._printer.commands("G1 Z" + str(dest_z+10) + " F" + str(self.FEEDRATE)) # lift printhead again
 
@@ -308,11 +306,11 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._logger.info("Selected object: %d. Position: box %d, row %d, col %d", partnr, partPos, row, col)
 
         boxsize = float(self._settings.get(["tray", "boxsize"]))
-        x = (col-1)*boxsize + boxsize/2 + col + float(self._settings.get(["tray", "x"]))
-        y = (row-1)*boxsize + boxsize/2 + row + float(self._settings.get(["tray", "y"]))
+        x = col * boxsize + float(self._settings.get(["tray", "x"]))
+        y = row * boxsize + float(self._settings.get(["tray", "y"]))
         return [x, y, float(self._settings.get(["tray", "z"]))]
 
-    def _gripVacuum(self):
+    def _gripMagnet(self):
         self._printer.commands("M400")
         self._printer.commands("M400")
         self._printer.commands("G4 P500")
@@ -320,7 +318,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
             self._printer.commands(line)
         self._printer.commands("G4 P500")
 
-    def _releaseVacuum(self):
+    def _releaseMagnet(self):
         self._printer.commands("M400")
         self._printer.commands("M400")
         self._printer.commands("G4 P500")
