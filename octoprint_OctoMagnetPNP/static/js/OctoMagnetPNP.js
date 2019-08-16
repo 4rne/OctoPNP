@@ -79,12 +79,6 @@ $(function() {
                 else if(data.event == "INFO") {
                     self.stateString("INFO: \"" + data.data.type + "\"");
                 }
-                else if(data.event == "HEADIMAGE") {
-                    document.getElementById('headCameraImage').setAttribute( 'src', data.data.src );
-                }
-                else if(data.event == "BEDIMAGE") {
-                    document.getElementById('bedCameraImage').setAttribute( 'src', data.data.src );
-                }
                 //self.debugvar("Plugin = OctoMagnetPNP");
             }
         };

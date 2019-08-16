@@ -22,9 +22,7 @@ $(function() {
             return self.connection.isOperational() || self.connection.isReady() || self.connection.isPaused();
         });
 
-        self.statusHeadCameraOffset = ko.observable(false);
         self.statusTrayPosition = ko.observable(false);
-        self.statusBedCameraOffset = ko.observable(false);
         // delete if pnp offset in eeprom
         self.statusPnpNozzleOffset =  ko.observable(false);
 
@@ -55,49 +53,6 @@ $(function() {
             self.control.sendCustomCommand({command: "T0"});
             self.control.sendCustomCommand({command: "G28 X Y"});
         };
-        
-        // Calibrate offset between primary extruder and head-camera
-        self.headCameraOffset = function() {
-            //deactivate other processes
-            self.statusHeadCameraOffset(true);
-            self.statusTrayPosition(false);
-            self.statusBedCameraOffset(false);
-            // delete if pnp offset in eeprom
-            self.statusPnpNozzleOffset(false);
-            
-            // Load eeprom for extruder calibation
-            self.loadEeprom();
-
-            // Switch to primary extruder
-            self.control.sendCustomCommand({command: "G1 X100 Y150 F3000"});
-            self.control.sendCustomCommand({command: "T0"});
-
-            //move camera to object
-            var x = self.objectPositionX() - parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.x());
-            var y = self.objectPositionY() - parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.y());
-            self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + self.settings.plugins.OctoMagnetPNP.camera.head.z() + " F3000"});
-
-            //reset offset correction values
-            self.offsetCorrectionX(0.0);
-            self.offsetCorrectionY(0.0);
-
-            //activate Keycontrol
-            self.keycontrolPossible(true);
-
-            //trigger immage fetching
-            setTimeout(function() {self._getImage('HEAD');}, 8000);
-        };
-
-        self.saveHeadCameraOffset = function() {
-            //save values...
-            self.settings.plugins.OctoMagnetPNP.camera.head.x(parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.x())-self.offsetCorrectionX());
-            self.settings.plugins.OctoMagnetPNP.camera.head.y(parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.y())-self.offsetCorrectionY());
-
-            //deactivate Keycontrol
-            self.keycontrolPossible(false);
-            self.statusHeadCameraOffset(false);
-        };
-
 
         self.saveExtruderOffset = function(ex) {
             // Steps to save values:
@@ -129,76 +84,10 @@ $(function() {
             self.keycontrolPossible(false);
         };
 
-        // Move Ex to bed camera.
-        self.bedCameraPosition = function() {
-            //deactivate other processes
-            self.statusHeadCameraOffset(false);
-            self.statusTrayPosition(false);
-            self.statusBedCameraOffset(true);
-            // delete if pnp offset in eeprom
-            self.statusPnpNozzleOffset(false);
-
-            // Switch to magnet extruder
-            self.control.sendCustomCommand({command: "G1 X100 Y150 F3000"});
-            self.control.sendCustomCommand({command: "T" + self.selectedBedExtruder().toString()});
-
-            //move camera to object
-            var x = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.x());
-            var y = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.y());
-            self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + self.settings.plugins.OctoMagnetPNP.camera.bed.z() + " F3000"});
-
-            //reset offset correction values
-            self.offsetCorrectionX(0.0);
-            self.offsetCorrectionY(0.0);
-
-            //activate Keycontrol
-            self.keycontrolPossible(true);
-
-            //trigger immage fetching
-            setTimeout(function() {self._getImage('BED');}, 8000);
-        };
-        
-        self.saveExtruderHeadCameraOffset = function() {
-            // save offset
-            self.saveExtruderOffset(self.selectedHeadExtruder());
-            
-            // deactivate Button
-            self.statusHeadCameraOffset(false);
-        };
-        
-        
-        self.saveExtruderBedCameraOffset = function() {
-            // invert X and Y axis
-            self.offsetCorrectionX(self.offsetCorrectionX()*-1);
-            self.offsetCorrectionY(self.offsetCorrectionY()*-1);
-            
-            // save offset
-            self.saveExtruderOffset(self.selectedBedExtruder());
-            
-            // deactivate Button
-            self.statusBedCameraOffset(false);
-        };
-
-        
-        self.saveBedCameraPosition = function() {
-            //save values
-            self.settings.plugins.OctoMagnetPNP.camera.bed.x(parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.x())+self.offsetCorrectionX());
-            self.settings.plugins.OctoMagnetPNP.camera.bed.y(parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.y())+self.offsetCorrectionY());
-
-            //deactivate Keycontrol
-            
-            self.keycontrolPossible(false);
-            self.statusBedCameraOffset(false);
-        };
-        
-        
         // delete if pnp offset in eeprom
-        // Move Vacuum bed camera to Nozzle.
         self.pnpNozzleOffset = function() {
             //deactivate other processes
-            self.statusHeadCameraOffset(false);
             self.statusTrayPosition(false);
-            self.statusBedCameraOffset(false);
             // delete if pnp offset in eeprom
             self.statusPnpNozzleOffset(true);
 
@@ -207,23 +96,15 @@ $(function() {
             self.control.sendCustomCommand({command: "G1 X100 Y150 F3000"});
             // Switch to magnet extruder
             self.control.sendCustomCommand({command: "T" + self.settings.plugins.OctoMagnetPNP.magnet.extruder_nr().toString()});
-            
-            //move camera to object
-            var x = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.x()) - parseFloat(self.settings.plugins.OctoMagnetPNP.magnet.x());
-            var y = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.y()) - parseFloat(self.settings.plugins.OctoMagnetPNP.magnet.y());
-            self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + self.settings.plugins.OctoMagnetPNP.camera.bed.z() + " F3000"});
-            
+
             //reset offset correction values
             self.offsetCorrectionX(0.0);
             self.offsetCorrectionY(0.0);
 
             //activate Keycontrol
             self.keycontrolPossible(true);
-
-            //trigger immage fetching
-            setTimeout(function() {self._getImage('BED');}, 8000);
         };
-        
+
         // delete if pnp offset in eeprom
         self.savePnpNozzleOffset = function() {
             //save values
@@ -234,13 +115,11 @@ $(function() {
             self.keycontrolPossible(false);
             self.statusPnpNozzleOffset(false);
         };
-        
+
         // calibrate tray position relative to primary extruder
         self.trayPosition = function(corner) {
             //deactivate other processes
-            self.statusHeadCameraOffset(false);
             self.statusTrayPosition(true);
-            self.statusBedCameraOffset(false);
             // delete if pnp offset in eeprom
             self.statusPnpNozzleOffset(false);
 
@@ -275,15 +154,6 @@ $(function() {
                     break;
             }
 
-            //move camera to tray
-            var x = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.x()) + cornerOffsetX - parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.x());
-            var y = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.y()) + cornerOffsetY - parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.y());
-            var z = parseFloat(self.settings.plugins.OctoMagnetPNP.tray.z()) + parseFloat(self.settings.plugins.OctoMagnetPNP.camera.head.z());
-            console.log(self.settings.plugins.OctoMagnetPNP.tray.z());
-            console.log(self.settings.plugins.OctoMagnetPNP.camera.head.z());
-            console.log(z);
-            self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + z + " F3000"});
-
             //reset offset correction values
             self.offsetCorrectionX(0.0);
             self.offsetCorrectionY(0.0);
@@ -303,26 +173,6 @@ $(function() {
             //deactivate Keycontrol
             self.keycontrolPossible(false);
             self.statusTrayPosition(false);
-        };
-
-
-        self._getImage = function(imagetype, callback) {
-            $.ajax({
-                url: PLUGIN_BASEURL + "OctoMagnetPNP/camera_image?imagetype=" + imagetype,
-                type: "GET",
-                dataType: "json",
-                contentType: "application/json; charset=UTF-8",
-                //data: JSON.stringify(data),
-                success: function(response) {
-                    if(response.hasOwnProperty("src")) {
-                        self._drawImage(response.src);
-                    }
-                    if(response.hasOwnProperty("error")) {
-                        alert(response.error);
-                    }
-                    if (callback) callback();
-                }
-            });
         };
 
         self._drawImage = function(img) {
@@ -430,13 +280,6 @@ $(function() {
                 default:
                     event.preventDefault();
                     return false;
-            }
-            if(refreshImage) {
-                if(self.statusBedCameraOffset() || self.statusPnpNozzleOffset()) {
-                    setTimeout(function() {self._getImage('BED');}, 300);
-                }else{
-                    setTimeout(function() {self._getImage('HEAD');}, 300);
-                }
             }
         };
 
