@@ -138,7 +138,7 @@ $(function() {
             // delete if pnp offset in eeprom
             self.statusPnpNozzleOffset(false);
 
-            // Switch to VacNozzle extruder
+            // Switch to magnet extruder
             self.control.sendCustomCommand({command: "G1 X100 Y150 F3000"});
             self.control.sendCustomCommand({command: "T" + self.selectedBedExtruder().toString()});
 
@@ -205,12 +205,12 @@ $(function() {
             // Move before toolchange
             //reset axis
             self.control.sendCustomCommand({command: "G1 X100 Y150 F3000"});
-            // Switch to VacNozzle extruder
-            self.control.sendCustomCommand({command: "T" + self.settings.plugins.OctoMagnetPNP.vacnozzle.extruder_nr().toString()});
+            // Switch to magnet extruder
+            self.control.sendCustomCommand({command: "T" + self.settings.plugins.OctoMagnetPNP.magnet.extruder_nr().toString()});
             
             //move camera to object
-            var x = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.x()) - parseFloat(self.settings.plugins.OctoMagnetPNP.vacnozzle.x());
-            var y = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.y()) - parseFloat(self.settings.plugins.OctoMagnetPNP.vacnozzle.y());
+            var x = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.x()) - parseFloat(self.settings.plugins.OctoMagnetPNP.magnet.x());
+            var y = parseFloat(self.settings.plugins.OctoMagnetPNP.camera.bed.y()) - parseFloat(self.settings.plugins.OctoMagnetPNP.magnet.y());
             self.control.sendCustomCommand({command: "G1 X" + x + " Y" + y + " Z" + self.settings.plugins.OctoMagnetPNP.camera.bed.z() + " F3000"});
             
             //reset offset correction values
@@ -227,8 +227,8 @@ $(function() {
         // delete if pnp offset in eeprom
         self.savePnpNozzleOffset = function() {
             //save values
-            self.settings.plugins.OctoMagnetPNP.vacnozzle.x(parseFloat(self.settings.plugins.OctoMagnetPNP.vacnozzle.x())-self.offsetCorrectionX());
-            self.settings.plugins.OctoMagnetPNP.vacnozzle.y(parseFloat(self.settings.plugins.OctoMagnetPNP.vacnozzle.y())-self.offsetCorrectionY());
+            self.settings.plugins.OctoMagnetPNP.magnet.x(parseFloat(self.settings.plugins.OctoMagnetPNP.magnet.x())-self.offsetCorrectionX());
+            self.settings.plugins.OctoMagnetPNP.magnet.y(parseFloat(self.settings.plugins.OctoMagnetPNP.magnet.y())-self.offsetCorrectionY());
 
             //deactivate Keycontrol
             self.keycontrolPossible(false);

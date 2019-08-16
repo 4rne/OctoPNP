@@ -93,7 +93,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                 "columns": 5,
                 "boxsize": 10
             },
-            "vacnozzle": {
+            "magnet": {
                 "x": 0,
                 "y": 0,
                 "extruder_nr": 2,
@@ -252,12 +252,12 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._logger.info("PART OFFSET:" + str(part_offset))
 
         tray_offset = self._getTrayPosFromPartNr(partnr)
-        vacuum_dest = [tray_offset[0]+part_offset[0]-float(self._settings.get(["vacnozzle", "x"])),\
-                         tray_offset[1]+part_offset[1]-float(self._settings.get(["vacnozzle", "y"])),\
+        vacuum_dest = [tray_offset[0]+part_offset[0]-float(self._settings.get(["magnet", "x"])),\
+                         tray_offset[1]+part_offset[1]-float(self._settings.get(["magnet", "y"])),\
                          tray_offset[2]+self.smdparts.getPartHeight(partnr)]
 
         # move vac nozzle to part and pick
-        self._printer.commands("T" + str(self._settings.get(["vacnozzle", "extruder_nr"])))
+        self._printer.commands("T" + str(self._settings.get(["magnet", "extruder_nr"])))
         cmd = "G1 X" + str(vacuum_dest[0]) + " Y" + str(vacuum_dest[1]) + " F" + str(self.FEEDRATE)
         self._printer.commands(cmd)
         self._printer.commands("G1 Z" + str(vacuum_dest[2]+10))
@@ -287,8 +287,8 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
         # move to destination
         dest_z = destination[2]+self.smdparts.getPartHeight(partnr)
-        cmd = "G1 X" + str(destination[0]-float(self._settings.get(["vacnozzle", "x"]))+displacement[0]) \
-              + " Y" + str(destination[1]-float(self._settings.get(["vacnozzle", "y"]))+displacement[1]) \
+        cmd = "G1 X" + str(destination[0]-float(self._settings.get(["magnet", "x"]))+displacement[0]) \
+              + " Y" + str(destination[1]-float(self._settings.get(["magnet", "y"]))+displacement[1]) \
               + " F" + str(self.FEEDRATE)
         self._logger.info("object destination: " + cmd)
         self._printer.commands("G1 Z" + str(dest_z+10) + " F" + str(self.FEEDRATE)) # lift printhead
@@ -316,7 +316,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._printer.commands("M400")
         self._printer.commands("M400")
         self._printer.commands("G4 P500")
-        for line in self._settings.get(["vacnozzle", "grip_magnet_gcode"]).splitlines():
+        for line in self._settings.get(["magnet", "grip_magnet_gcode"]).splitlines():
             self._printer.commands(line)
         self._printer.commands("G4 P500")
 
@@ -324,7 +324,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._printer.commands("M400")
         self._printer.commands("M400")
         self._printer.commands("G4 P500")
-        for line in self._settings.get(["vacnozzle", "release_magnet_gcode"]).splitlines():
+        for line in self._settings.get(["magnet", "release_magnet_gcode"]).splitlines():
             self._printer.commands(line)
         self._printer.commands("G4 P500")
 
