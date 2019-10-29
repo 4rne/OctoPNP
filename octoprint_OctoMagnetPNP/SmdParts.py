@@ -64,9 +64,9 @@ class SmdParts():
         if(self._et.find("./part[@id='" + str(partnr) + "']/type") is not None):
             return self._et.find("./part[@id='" + str(partnr) + "']/type").get("identifier")
 
-    def getPartThread(self, partnr):
+    def getPartThreadSize(self, partnr):
         if(self._et.find("./part[@id='" + str(partnr) + "']/type") is not None):
-            return self._et.find("./part[@id='" + str(partnr) + "']/type").get("thread")
+            return self._et.find("./part[@id='" + str(partnr) + "']/type").get("thread_size")
 
 
     def getPartDestination(self, partnr):
