@@ -344,7 +344,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                     trayPosition = None
                     # find empty tray position
                     for i, traybox in enumerate(config):
-                        if(int(traybox.get("thread")) == int(threadSize) and
+                        if(int(traybox.get("thread_size")) == int(threadSize) and
                            traybox.get("nut") == self.smdparts.getPartType(partId) and
                            i not in usedTrayPositions):
                             usedTrayPositions.append(i)

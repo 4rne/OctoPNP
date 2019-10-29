@@ -22,7 +22,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
         _parts[part.id].col = (part.partPosition) % _cols + 1;
 
         // and draw to canvas
-        _drawPart(part.id, part.thread, part.type, "#aaa");
+        _drawPart(part.id, part.threadSize, part.type, "#aaa");
     }
 
     self.selectPart = function(x, y) {
@@ -31,12 +31,12 @@ function smdTray(cols, rows, boxSize, canvas, config) {
         row = Math.floor(((_rows*canvasBoxSize)-y)/(canvasBoxSize-1)) + 1;
 
         for (var id in _parts) {
-            _drawPart(id, _parts[id].thread, _parts[id].type, "#aaa");
+            _drawPart(id, _parts[id].threadSize, _parts[id].type, "#aaa");
         }
 
         var partId = _getPartId(col, row);
         if(partId) {
-            _drawPart(partId, _parts[partId].thread, _parts[partId].type, "red");
+            _drawPart(partId, _parts[partId].threadSize, _parts[partId].type, "red");
         }
         return partId;
     }
@@ -68,7 +68,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
 	
 	
 	//draw a part into a tray box
-    function _drawPart(partID, thread, type, color) {
+    function _drawPart(partID, threadSize, type, color) {
         part = _parts[partID];
 
 		//clear old box
@@ -88,7 +88,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
 				ctx.textBaseline = "top";
 				ctx.fillText(part.name, col_offset, row_offset);
 
-                let size = parseFloat(thread) * 5;
+                let size = parseFloat(threadSize) * 5;
                 x = (part.col - 1) * canvasBoxSize + 4 / 2 + canvasBoxSize / 2;
                 y = _rows * canvasBoxSize - (part.row - 1) * canvasBoxSize + 4 / 2 - canvasBoxSize / 2;
 
@@ -133,7 +133,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 ctx.fillStyle = '#000';
 
                 nutShape = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].nut
-                partSize = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].thread
+                partSize = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].thread_size
                 partOutlineSize = partSize * 5 + 3
 
                 ctx.beginPath();
