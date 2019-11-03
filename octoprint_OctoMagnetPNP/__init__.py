@@ -363,9 +363,11 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                             self.partPositions[partId] = i
                             break
                     if(trayPosition is None):
-                        print("Error, no tray box for part no " + str(partId) + "(" + partType + " M" + str(threadSize) +
-                              ", part orientation: " + partOrientation + ") left")  # TODO Error handling
-                        break
+                        print("Error, no tray box for part no " + str(partId) + " (" + partType + " M" + str(threadSize) +
+                              ", part orientation: " + partOrientation + ") left")
+                        self._updateUI("ERROR", "No tray box for part no " + str(partId) + " (" + partType + " M" + str(threadSize) +
+                                       ", part orientation: " + partOrientation + ") left")
+                        return
                     partArray.append(
                         dict(
                             id = partId,
