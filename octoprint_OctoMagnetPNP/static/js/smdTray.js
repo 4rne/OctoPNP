@@ -83,10 +83,10 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 var row_offset = _rows*canvasBoxSize-part.row*canvasBoxSize+4;
 
                 //print part names
-				// ctx.font = "10px Verdana";
-				// ctx.fillStyle = "#000000";
-				// ctx.textBaseline = "top";
-				// ctx.fillText(part.name, col_offset, row_offset);
+				ctx.font = "10px Verdana";
+				ctx.fillStyle = "#000000";
+				ctx.textBaseline = "top";
+				ctx.fillText("part no: " + part.id, col_offset, row_offset + canvasBoxSize - 16);
 
                 let size = parseFloat(threadSize) * 5;
                 x = (part.col - 1) * canvasBoxSize + 4 / 2 + canvasBoxSize / 2;
@@ -94,24 +94,53 @@ function smdTray(cols, rows, boxSize, canvas, config) {
 
                 ctx.fillStyle = color;
                 ctx.beginPath();
-                if (type === "hexnut") {
-                    for (let i = 0; i < 360; i += 60) {
-                        ctx.lineTo(x + Math.sin(i * Math.PI / 180) * size * 0.45, y + Math.cos(i * Math.PI / 180) * size * 0.45);
+                if (slotOrientation === "flat") {
+                    if (type === "hexnut") {
+                        for (let i = 0; i < 360; i += 60) {
+                            ctx.lineTo(x + Math.sin(i * Math.PI / 180) * size * 0.45, y + Math.cos(i * Math.PI / 180) * size * 0.45);
+                        }
+                    }
+                    else if (type === "squarenut") {
+                        ctx.lineTo(x - size / 2, y -  size / 2);
+                        ctx.lineTo(x +  size / 2,y - size / 2);
+                        ctx.lineTo(x + size / 2,y + size / 2);
+                        ctx.lineTo(x - size / 2, y + size / 2);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.fillStyle = "white";
+                    ctx.arc(x, y, size / 7.0, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.closePath();
+                } else if (slotOrientation === "upright") {
+                    if (type === "hexnut") {
+                        ctx.beginPath();
+                        ctx.lineTo(x + partOutlineSize / 6, y - partOutlineSize / 2);
+                        ctx.lineTo(x + partOutlineSize / 6, y + partOutlineSize / 2);
+                        ctx.lineTo(x - partOutlineSize / 6, y + partOutlineSize / 2);
+                        ctx.lineTo(x - partOutlineSize / 6, y - partOutlineSize / 2);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(x - partOutlineSize / 6, y + partOutlineSize / 4);
+                        ctx.lineTo(x + partOutlineSize / 6, y + partOutlineSize / 4);
+                        ctx.moveTo(x - partOutlineSize / 6, y - partOutlineSize / 4);
+                        ctx.lineTo(x + partOutlineSize / 6, y - partOutlineSize / 4);
+                        ctx.stroke();
+                    } else if (type === "squarenut") {
+                        ctx.beginPath();
+                        ctx.lineTo(x + partOutlineSize / 6, y - partOutlineSize / 2);
+                        ctx.lineTo(x + partOutlineSize / 6, y + partOutlineSize / 2);
+                        ctx.lineTo(x - partOutlineSize / 6, y + partOutlineSize / 2);
+                        ctx.lineTo(x - partOutlineSize / 6, y - partOutlineSize / 2);
+                        ctx.fill();
                     }
                 }
-                else if (type === "squarenut") {
-                    ctx.lineTo(x - size / 2, y -  size / 2);
-                    ctx.lineTo(x +  size / 2,y - size / 2);
-                    ctx.lineTo(x + size / 2,y + size / 2);
-                    ctx.lineTo(x - size / 2, y + size / 2);
-                }
-                ctx.closePath();
-                ctx.fill();
 
-                ctx.beginPath();
-                ctx.fillStyle = "white";
-                ctx.arc(x, y, size / 7.0, 0, 2 * Math.PI);
-                ctx.fill();
+
             }
         }
     }
