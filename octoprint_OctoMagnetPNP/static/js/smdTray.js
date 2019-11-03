@@ -83,10 +83,10 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 var row_offset = _rows*canvasBoxSize-part.row*canvasBoxSize+4;
 
                 //print part names
-				ctx.font = "10px Verdana";
-				ctx.fillStyle = "#000000";
-				ctx.textBaseline = "top";
-				ctx.fillText(part.name, col_offset, row_offset);
+				// ctx.font = "10px Verdana";
+				// ctx.fillStyle = "#000000";
+				// ctx.textBaseline = "top";
+				// ctx.fillText(part.name, col_offset, row_offset);
 
                 let size = parseFloat(threadSize) * 5;
                 x = (part.col - 1) * canvasBoxSize + 4 / 2 + canvasBoxSize / 2;
@@ -123,6 +123,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
         if (_trayCanvas && _trayCanvas.getContext) {
             var ctx = _trayCanvas.getContext("2d");
             if (ctx) {
+                var canvasBoxSize = _getCanvasBoxSize();
                 ctx.lineWidth = 4;
                 ctx.strokeStyle = "black";
                 ctx.fillStyle = "white";
@@ -130,23 +131,46 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 ctx.fillRect (col*size+ctx.lineWidth,(_rows-1)*size-row*size+ctx.lineWidth,size-ctx.lineWidth,size-ctx.lineWidth);
                 x = col * size + ctx.lineWidth / 2 + size / 2;
                 y = (_rows - 1) * size - row * size + ctx.lineWidth / 2 + size / 2;
-                ctx.fillStyle = '#000';
 
                 nutShape = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].nut
                 partSize = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].thread_size
+                slotOrientation = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].slot_orientation
                 partOutlineSize = partSize * 5 + 3
 
                 ctx.beginPath();
+                ctx.fillStyle = '#aaa';
+                ctx.fillText("M" + partSize + " " + nutShape, x - canvasBoxSize / 2.0 + 4, y - canvasBoxSize / 2.0 + 10);
+                ctx.fillText(slotOrientation, x - canvasBoxSize / 2.0 + 4, y - canvasBoxSize / 2.0 + 18);
+                ctx.fillStyle = '#000';
                 if (nutShape === "hexnut") {
-                    for (let i = 0; i < 360; i += 60) {
-                        ctx.lineTo(x + Math.sin(i * Math.PI / 180) * partOutlineSize * 0.45, y + Math.cos(i * Math.PI / 180) * partOutlineSize * 0.45);
+                    if (slotOrientation === "flat") {
+                        for (let i = 0; i < 360; i += 60) {
+                            ctx.lineTo(x + Math.sin(i * Math.PI / 180) * partOutlineSize * 0.45, y + Math.cos(i * Math.PI / 180) * partOutlineSize * 0.45);
+                        }
+                    } else if (slotOrientation === "upright") {
+                        ctx.moveTo(x - partOutlineSize / 6, y + partOutlineSize / 4);
+                        ctx.lineTo(x + partOutlineSize / 6, y + partOutlineSize / 4);
+                        ctx.moveTo(x - partOutlineSize / 6, y - partOutlineSize / 4);
+                        ctx.lineTo(x + partOutlineSize / 6, y - partOutlineSize / 4);
+
+                        ctx.moveTo(x - partOutlineSize / 6, y - partOutlineSize / 2);
+                        ctx.lineTo(x + partOutlineSize / 6, y - partOutlineSize / 2);
+                        ctx.lineTo(x + partOutlineSize / 6, y + partOutlineSize / 2);
+                        ctx.lineTo(x - partOutlineSize / 6, y + partOutlineSize / 2);
+                        ctx.lineTo(x - partOutlineSize / 6, y - partOutlineSize / 2);
                     }
                 } else if (nutShape === "squarenut") {
-
-                    ctx.lineTo(x - partOutlineSize / 2, y - partOutlineSize / 2);
-                    ctx.lineTo(x + partOutlineSize / 2, y - partOutlineSize / 2);
-                    ctx.lineTo(x + partOutlineSize / 2, y + partOutlineSize / 2);
-                    ctx.lineTo(x - partOutlineSize / 2, y + partOutlineSize / 2);
+                    if (slotOrientation === "flat") {
+                        ctx.lineTo(x - partOutlineSize / 2, y - partOutlineSize / 2);
+                        ctx.lineTo(x + partOutlineSize / 2, y - partOutlineSize / 2);
+                        ctx.lineTo(x + partOutlineSize / 2, y + partOutlineSize / 2);
+                        ctx.lineTo(x - partOutlineSize / 2, y + partOutlineSize / 2);
+                    } else if (slotOrientation === "upright") {
+                        ctx.lineTo(x + partOutlineSize / 6, y - partOutlineSize / 2);
+                        ctx.lineTo(x + partOutlineSize / 6, y + partOutlineSize / 2);
+                        ctx.lineTo(x - partOutlineSize / 6, y + partOutlineSize / 2);
+                        ctx.lineTo(x - partOutlineSize / 6, y - partOutlineSize / 2);
+                    }
                 }
                 ctx.closePath();
                 ctx.lineWidth = 2;

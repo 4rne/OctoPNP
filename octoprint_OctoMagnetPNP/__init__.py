@@ -342,18 +342,22 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                 config = json.loads(self._settings.get(["tray", "boxconfiguration"]))
                 for partId in partIds:
                     threadSize = self.smdparts.getPartThreadSize(partId)
+                    partType = self.smdparts.getPartType(partId)
+                    partOrientation = self.smdparts.getPartOrientation(partId).lower()
                     trayPosition = None
-                    # find empty tray position
+                    # find empty tray position, where the part fits
                     for i, traybox in enumerate(config):
                         if(float(traybox.get("thread_size")) == float(threadSize) and
-                           traybox.get("nut") == self.smdparts.getPartType(partId) and
+                           traybox.get("nut") == partType and
+                           traybox.get("slot_orientation") == partOrientation and
                            i not in usedTrayPositions):
                             usedTrayPositions.append(i)
                             trayPosition = i
                             self.partPositions[partId] = i
                             break
                     if(trayPosition is None):
-                        print("Error, no tray box for part no " + str(partId) + " left") # TODO Error handling
+                        print("Error, no tray box for part no " + str(partId) + "(" + partType + " M" + str(threadSize) +
+                              ", part orientation: " + partOrientation + ") left")  # TODO Error handling
                         break
                     partArray.append(
                         dict(
@@ -361,8 +365,9 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                             name = self.smdparts.getPartName(partId),
                             partPosition = trayPosition,
                             shape = self.smdparts.getPartShape(partId),
-                            type = self.smdparts.getPartType(partId),
-                            threadSize = threadSize
+                            type=partType,
+                            threadSize = threadSize,
+                            partOrientation = partOrientation
                         )
                     )
 
