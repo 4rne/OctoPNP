@@ -287,6 +287,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         dest_z = destination[2]+self.smdparts.getPartHeight(partnr)
         cmd = "G1 X" + str(destination[0]-float(self._settings.get(["magnet", "x"]))+displacement[0]) \
               + " Y" + str(destination[1]-float(self._settings.get(["magnet", "y"]))+displacement[1]) \
+              + " E" + str(self.smdparts.getPartRotation(partnr)) \
               + " F" + str(self.FEEDRATE)
         self._logger.info("object destination: " + cmd)
         self._printer.commands("G1 Z" + str(dest_z+10) + " F" + str(self.FEEDRATE)) # lift printhead

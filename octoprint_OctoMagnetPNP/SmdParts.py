@@ -68,6 +68,12 @@ class SmdParts():
         if(self._et.find("./part[@id='" + str(partnr) + "']/type") is not None):
             return self._et.find("./part[@id='" + str(partnr) + "']/type").get("thread_size")
 
+    # Upright, Flat
+    def getPartOrientation(self, partnr):
+        return self._et.find("./part[@id='" + str(partnr) + "']/orientation").get("orientation")
+
+    def getPartRotation(self, partnr):
+        return float(self._et.find("./part[@id='" + str(partnr) + "']/rotation").get("z"))
 
     def getPartDestination(self, partnr):
         x = float(self._et.find("./part[@id='" + str(partnr) + "']/destination").get("x"))
