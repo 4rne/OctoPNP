@@ -269,11 +269,12 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         orientation_offset = 0
 
         # find destination at the object
-        destination = self.smdparts.getPartDestination(partnr)
+        rotation = self.smdparts.getPartRotation(partnr)
 
         #rotate object
         self._printer.commands("G92 E0")
-        self._printer.commands("G1 E" + str(destination[3]-orientation_offset) + " F" + str(self.FEEDRATE))
+        self._printer.commands("G1 E" + str(rotation) + " F" + str(self.FEEDRATE))
+        self._logger.info("object rotation: " + str(rotation))
 
     def _placePart(self, partnr):
         displacement = [0, 0]
@@ -287,10 +288,9 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         dest_z = destination[2]+self.smdparts.getPartHeight(partnr)
         cmd = "G1 X" + str(destination[0]-float(self._settings.get(["magnet", "x"]))+displacement[0]) \
               + " Y" + str(destination[1]-float(self._settings.get(["magnet", "y"]))+displacement[1]) \
-              + " E" + str(self.smdparts.getPartRotation(partnr)) \
               + " F" + str(self.FEEDRATE)
         self._logger.info("object destination: " + cmd)
-        self._printer.commands("G1 Z" + str(dest_z+10) + " F" + str(self.FEEDRATE)) # lift printhead
+        self._printer.commands("G1 Z" + str(dest_z+10) + " F" + str(self.FEEDRATE))  # lift printhead
         self._printer.commands(cmd)
         self._printer.commands("G1 Z" + str(dest_z))
 
