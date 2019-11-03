@@ -89,7 +89,10 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
                 "z": 0,
                 "rows" : 5,
                 "columns": 5,
-                "boxsize": 10
+                "boxsize": 10,
+                "part_rotation_flat": 0,
+                "part_rotation_upright": 0,
+                "boxconfiguration": "[ {\"thread_size\": \"2\", \"nut\": \"hexnut\", \"slot_orientation\": \"upright\"},   {\"thread_size\": \"2.5\", \"nut\": \"hexnut\", \"slot_orientation\": \"upright\"},   {\"thread_size\": \"3\", \"nut\": \"hexnut\", \"slot_orientation\": \"flat\"},   {\"thread_size\": \"8\", \"nut\": \"hexnut\", \"slot_orientation\": \"upright\"},   {\"thread_size\": \"8\", \"nut\": \"hexnut\", \"slot_orientation\": \"flat\"},   {\"thread_size\": \"3\", \"nut\": \"squarenut\", \"slot_orientation\": \"upright\"},   {\"thread_size\": \"10\", \"nut\": \"squarenut\", \"slot_orientation\": \"flat\"},   {\"thread_size\": \"8\", \"nut\": \"squarenut\", \"slot_orientation\": \"upright\"},   {\"thread_size\": \"6\", \"nut\": \"squarenut\", \"slot_orientation\": \"flat\"},   {\"thread_size\": \"4\", \"nut\": \"squarenut\", \"slot_orientation\": \"upright\"} ]"
             },
             "magnet": {
                 "x": 0,
@@ -270,6 +273,10 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
         # find destination at the object
         rotation = self.smdparts.getPartRotation(partnr)
+        if self.smdparts.getPartOrientation(partnr).lower() == "flat":
+            rotation += float(self._settings.get(["tray", "part_rotation_flat"]))
+        elif self.smdparts.getPartOrientation(partnr).lower() == "upright":
+            rotation += float(self._settings.get(["tray", "part_rotation_upright"]))
 
         #rotate object
         self._printer.commands("G92 E0")
