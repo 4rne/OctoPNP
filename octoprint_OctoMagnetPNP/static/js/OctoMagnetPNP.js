@@ -52,7 +52,7 @@ $(function() {
             if(plugin == "OctoMagnetPNP") {
                 if (data.event == "FILE") {
                     if(data.data.hasOwnProperty("partCount")) {
-                        self.stateString("Loaded file with " + data.data.partCount + " SMD parts");
+                        self.stateString("Loaded file with " + data.data.partCount + " nuts");
                         //initialize the tray
                         _smdTray.erase();
 
@@ -64,7 +64,7 @@ $(function() {
 							}
 						}
                     }else{
-                        self.stateString("No SMD part in this file!");
+                        self.stateString("No nuts part in this file!");
                     }
                 }
                 else if(data.event == "OPERATION") {
