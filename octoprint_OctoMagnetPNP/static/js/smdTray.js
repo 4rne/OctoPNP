@@ -83,12 +83,14 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 var row_offset = _rows*canvasBoxSize-part.row*canvasBoxSize+4;
 
                 //print part names
-				ctx.font = "10px Verdana";
+				ctx.font = "8px Verdana";
 				ctx.fillStyle = "#000000";
 				ctx.textBaseline = "top";
-				ctx.fillText("part no: " + part.id, col_offset, row_offset + canvasBoxSize - 16);
+				ctx.fillText("partnr " + part.id, col_offset, row_offset + canvasBoxSize - 16);
 
-                let size = parseFloat(threadSize) * 5;
+                partOutlineSize = (partSize * 5 + 3) * 25 / canvasBoxSize
+                // let size = parseFloat(threadSize) * 5;
+                let size = partOutlineSize;
                 x = (part.col - 1) * canvasBoxSize + 4 / 2 + canvasBoxSize / 2;
                 y = _rows * canvasBoxSize - (part.row - 1) * canvasBoxSize + 4 / 2 - canvasBoxSize / 2;
 
@@ -123,7 +125,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                         ctx.lineTo(x - partOutlineSize / 6, y - partOutlineSize / 2);
                         ctx.closePath();
                         ctx.fill();
-                        
+
                         ctx.beginPath();
                         ctx.moveTo(x - partOutlineSize / 6, y + partOutlineSize / 4);
                         ctx.lineTo(x + partOutlineSize / 6, y + partOutlineSize / 4);
@@ -153,22 +155,23 @@ function smdTray(cols, rows, boxSize, canvas, config) {
             var ctx = _trayCanvas.getContext("2d");
             if (ctx) {
                 var canvasBoxSize = _getCanvasBoxSize();
-                ctx.lineWidth = 4;
+                ctx.lineWidth = 1;
                 ctx.strokeStyle = "black";
                 ctx.fillStyle = "white";
                 ctx.strokeRect (col*size+ctx.lineWidth/2,(_rows-1)*size-row*size+ctx.lineWidth/2,size-ctx.lineWidth/2,size-ctx.lineWidth/2);
                 ctx.fillRect (col*size+ctx.lineWidth,(_rows-1)*size-row*size+ctx.lineWidth,size-ctx.lineWidth,size-ctx.lineWidth);
-                x = col * size + ctx.lineWidth / 2 + size / 2;
-                y = (_rows - 1) * size - row * size + ctx.lineWidth / 2 + size / 2;
+                x = col * size + ctx.lineWidth / 2 + size / 2 + 1.5;
+                y = (_rows - 1) * size - row * size + ctx.lineWidth / 2 + size / 2 + 1.5;
 
                 nutShape = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].nut
                 partSize = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].thread_size
                 slotOrientation = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].slot_orientation
-                partOutlineSize = partSize * 5 + 3
+                partOutlineSize = (partSize * 5 + 3) * 25 / canvasBoxSize
 
                 ctx.beginPath();
-                ctx.fillStyle = '#aaa';
-                ctx.fillText("M" + partSize + " " + nutShape, x - canvasBoxSize / 2.0 + 4, y - canvasBoxSize / 2.0 + 10);
+                ctx.fillStyle = '#888';
+                ctx.font = "8px Verdana";
+                ctx.fillText("M" + partSize + " " + nutShape.replace("nut",""), x - canvasBoxSize / 2.0 + 4, y - canvasBoxSize / 2.0 + 10);
                 ctx.fillText(slotOrientation, x - canvasBoxSize / 2.0 + 4, y - canvasBoxSize / 2.0 + 18);
                 ctx.fillStyle = '#000';
                 if (nutShape === "hexnut") {
@@ -202,7 +205,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                     }
                 }
                 ctx.closePath();
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1;
                 ctx.stroke();
             }
         }
