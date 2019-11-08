@@ -305,6 +305,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
         self._releaseMagnet()
         self._printer.commands("G4 P500") #some extra time to make sure the part has released and the remaining vacuum is gone
         self._printer.commands("G1 Z" + str(dest_z+10) + " F" + str(self.FEEDRATE)) # lift printhead again
+        self._printer.commands("T0") # switch back to primary extruder
 
     # get the position of the box (center of the box) containing part x relative to the [0,0] corner of the tray
     def _getTrayPosFromPartNr(self, partnr):
