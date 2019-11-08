@@ -280,7 +280,7 @@ class OctoMagnetPNP(octoprint.plugin.StartupPlugin,
 
         #rotate object
         self._printer.commands("G92 E0")
-        self._printer.commands("G1 E" + str(rotation) + " F" + str(self.FEEDRATE))
+        self._printer.commands("G1 E" + str(rotation) + " F1000")
         self._logger.info("object rotation: " + str(rotation))
 
     def _placePart(self, partnr):
