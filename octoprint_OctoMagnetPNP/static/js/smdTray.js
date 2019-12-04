@@ -88,7 +88,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
 				ctx.textBaseline = "top";
 				ctx.fillText("partnr " + part.id, col_offset, row_offset + canvasBoxSize - 16);
 
-                partOutlineSize = (partSize * 5 + 3) * 25 / canvasBoxSize
+                partOutlineSize = (partSize * 5 + 3) * (canvasBoxSize / 100)
                 // let size = parseFloat(threadSize) * 5;
                 let size = partOutlineSize;
                 x = (part.col - 1) * canvasBoxSize + 4 / 2 + canvasBoxSize / 2;
@@ -166,7 +166,7 @@ function smdTray(cols, rows, boxSize, canvas, config) {
                 nutShape = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].nut
                 partSize = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].thread_size
                 slotOrientation = _config[(parseInt(row)) * parseInt(_cols) + parseInt(col)].slot_orientation
-                partOutlineSize = (partSize * 5 + 3) * 25 / canvasBoxSize
+                partOutlineSize = (partSize * 5 + 3) * (canvasBoxSize / 100)
 
                 ctx.beginPath();
                 ctx.fillStyle = '#888';
